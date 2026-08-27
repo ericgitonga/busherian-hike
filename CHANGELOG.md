@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.12.0] - 2026-08-27
+
+### Changed
+
+- `/checkin` no longer persists the raw `ORGANISER_PIN` in `localStorage` indefinitely (closes
+  #27). A correct PIN now sets a short-lived (4-hour), httpOnly, `SameSite=Strict`
+  `checkin_session` cookie instead (`src/lib/auth.ts` — stateless, HMAC-signed, keyed on
+  `ORGANISER_PIN` so rotating the PIN invalidates all outstanding sessions); `localStorage` only
+  holds a non-secret "was this device unlocked" boolean now. `/checkin/mark` is authorized by
+  that cookie alone (no PIN in its body at all), which also removes the need for any rate
+  limiting on that route — there's nothing left to brute-force there. Added a `POST
+  /api/checkin/lock` endpoint plus a **Lock** button to explicitly clear a device's session
+  before its natural expiry.
+
+### Security
+
+- Same change as above, from a security angle: closes the "PIN cached forever in plaintext,
+  readable via DevTools, retained indefinitely by any borrowed/shared device" gap from the
+  adversarial audit (finding H1).
+
+tag: `v0.12.0`
+
 ## [0.11.0] - 2026-08-27
 
 ### Added

@@ -1,5 +1,12 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { verifyPin } from "@/lib/auth";
+import {
+  CHECKIN_SESSION_COOKIE,
+  CHECKIN_SESSION_MAX_AGE_SECONDS,
+  createCheckinSessionToken,
+  verifyCheckinSessionToken,
+  verifyPin,
+} from "@/lib/auth";
 import {
   clientIpFromHeaders,
   isLockedOut,
@@ -13,16 +20,35 @@ export const dynamic = "force-dynamic";
 const ROUTE = "checkin-verify";
 
 export async function POST(request: Request) {
+  const cookieStore = await cookies();
+  const existingSession = cookieStore.get(CHECKIN_SESSION_COOKIE)?.value;
+
+  // Already has a valid session (e.g. checkin/page.tsx's "Refresh list") — skip PIN
+  // verification and rate limiting entirely, no need to resend the secret.
+  if (verifyCheckinSessionToken(existingSession)) {
+    const attendees = await getPaidAttendees();
+    return NextResponse.json({ ok: true, attendees });
+  }
+
   const ip = clientIpFromHeaders(request.headers);
   if (await isLockedOut(ROUTE, ip, PIN_AUTH_RATE_LIMIT)) {
     return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
   }
 
-  const { pin } = await request.json();
+  const { pin } = await request.json().catch(() => ({ pin: undefined }));
   if (!verifyPin(pin)) {
     await recordAuthFailure(ROUTE, ip, PIN_AUTH_RATE_LIMIT);
     return NextResponse.json({ ok: false }, { status: 401 });
   }
+
   const attendees = await getPaidAttendees();
-  return NextResponse.json({ ok: true, attendees });
+  const response = NextResponse.json({ ok: true, attendees });
+  response.cookies.set(CHECKIN_SESSION_COOKIE, createCheckinSessionToken(), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: CHECKIN_SESSION_MAX_AGE_SECONDS,
+    path: "/api/checkin",
+  });
+  return response;
 }
