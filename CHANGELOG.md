@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.7.0] - 2026-08-27
+
+### Added
+
+- Payment-confirmation pipeline (`src/lib/confirmation.ts`): QR code generation, shared
+  message text, and WhatsApp/SMS/email sending — each provider a placeholder that no-ops until
+  its own credentials are configured. Not wired to a trigger yet (that's issue #7); standalone
+  and unit-tested for #7 to call once it exists (closes #8)
+
+tag: `v0.7.0`
+
 ## [0.6.0] - 2026-08-27
 
 ### Added
