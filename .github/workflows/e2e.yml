@@ -55,6 +55,23 @@ jobs:
 
       - run: npm run build
 
+      - name: Check no secret leaked into the client bundle
+        # issue #40 — cheap, mechanical guard against a future regression (e.g. an accidental
+        # NEXT_PUBLIC_ prefix, or a server-only module getting imported into a Client Component).
+        # -l lists only matching *filenames*, never the matched line/content, so this is safe to
+        # print even on a hit; GitHub Actions also automatically masks any of these three
+        # registered secret values anywhere they'd appear in logs, as a second layer.
+        env:
+          ORGANISER_PIN: ${{ secrets.ORGANISER_PIN }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          matches=$(grep -rlF -e "$ORGANISER_PIN" -e "$TURSO_AUTH_TOKEN" -e "$CRON_SECRET" .next/static || true)
+          if [ -n "$matches" ]; then
+            echo "::error::Secret value(s) found bundled into the client build, in: $matches"
+            exit 1
+          fi
+
       - name: Start server
         # Output redirected to a file: GitHub Actions stops capturing a backgrounded (`&`)
         # process's output once the step that launched it exits. "Print server log" below cats
