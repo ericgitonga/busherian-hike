@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.12.6] - 2026-08-27
+
+### Security
+
+- CI (`e2e.yml`) now fails the build if `ORGANISER_PIN`, `TURSO_AUTH_TOKEN`, or `CRON_SECRET`
+  is found bundled into the client-shipped JavaScript (`.next/static`) — a cheap, mechanical
+  guard against a future regression (an accidental `NEXT_PUBLIC_` prefix, or a server-only
+  module getting imported into a Client Component) that nothing currently catches (closes #40).
+  Verified against both a clean build (no false positive) and a deliberately injected leak
+  (correctly detected and would fail the build).
+
+tag: `v0.12.6`
+
 ## [0.12.5] - 2026-08-27
 
 ### Added
