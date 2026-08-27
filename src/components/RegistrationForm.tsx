@@ -7,6 +7,7 @@ import {
   SCHOOL_OPTIONS,
   type RegistrationFieldErrors,
 } from "@/lib/registration";
+import { PAYMENT_LINK_URL, PER_HIKER_FEE_KES } from "@/lib/payment";
 
 const initialValues = {
   name: "",
@@ -107,7 +108,19 @@ export default function RegistrationForm() {
       >
         <p className="font-semibold">You&apos;re registered!</p>
         <p className="mt-1 text-sm">
-          Payment and confirmation details are coming soon — hold tight.
+          Pay KES {PER_HIKER_FEE_KES} via IntaSend to confirm your spot.
+        </p>
+        <a
+          data-testid="payment-link"
+          href={PAYMENT_LINK_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-block rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838]"
+        >
+          Pay KES {PER_HIKER_FEE_KES}
+        </a>
+        <p className="mt-3 text-xs text-green-800">
+          Confirmation details are coming soon — hold tight.
         </p>
       </div>
     );
