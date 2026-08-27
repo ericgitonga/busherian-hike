@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { registerHiker } from "@/app/actions";
 import {
@@ -212,6 +213,13 @@ export default function RegistrationForm() {
           onChange={(e) => update("nextOfKinContact", e.target.value)}
         />
       </Field>
+      <p data-testid="next-of-kin-hint" className="-mt-2 text-xs text-zinc-500">
+        Emergency contact only — please confirm they&apos;re okay being listed. See our{" "}
+        <Link href="/privacy" className="underline hover:text-zinc-700">
+          Privacy Notice
+        </Link>
+        .
+      </p>
 
       <label className="flex items-center gap-2 text-sm font-medium text-zinc-900">
         <input

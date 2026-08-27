@@ -40,3 +40,16 @@ export async function getPaidCount(): Promise<number> {
 export async function getSlotsRemaining(): Promise<number> {
   return computeSlotsRemaining(await getPaidCount());
 }
+
+// Empties (rather than NULLs — next_of_kin_* are NOT NULL columns) next-of-kin and contact
+// fields. Idempotent: rows already purged just don't match the WHERE clause again. Everything
+// else on the row (name, school, headcount fields, paid/checked-in state) is left intact —
+// issue #9's scope is these specific fields, not full anonymisation.
+export async function purgeContactFields(): Promise<number> {
+  const result = await db.execute(
+    `UPDATE registrations
+     SET next_of_kin_name = '', next_of_kin_contact = '', email = NULL
+     WHERE next_of_kin_name != '' OR next_of_kin_contact != '' OR email IS NOT NULL`,
+  );
+  return result.rowsAffected;
+}

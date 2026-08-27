@@ -1,3 +1,4 @@
+import Link from "next/link";
 import PartnerStrip from "@/components/PartnerStrip";
 import RegistrationForm from "@/components/RegistrationForm";
 import SlotsRemaining from "@/components/SlotsRemaining";
@@ -25,6 +26,15 @@ export default async function Home() {
         </header>
         <RegistrationForm />
         <PartnerStrip />
+        <p className="mt-6 text-center text-xs text-zinc-500">
+          <Link
+            href="/privacy"
+            data-testid="privacy-link"
+            className="underline hover:text-zinc-700"
+          >
+            Privacy Notice
+          </Link>
+        </p>
       </main>
     </div>
   );
