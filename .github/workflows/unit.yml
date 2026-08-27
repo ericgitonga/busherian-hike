@@ -18,7 +18,12 @@ jobs:
         with:
           node-version: 22
 
-      - run: npm ci
+      # --ignore-scripts (issue #28): blocks a compromised/typosquatted transitive dependency's
+      # postinstall hook from running arbitrary code during install. Verified 2026-08-27 that no
+      # dependency this workflow actually needs relies on an install-time script (the one real
+      # postinstall in the tree, unrs-resolver's, belongs to eslint-import-resolver-typescript —
+      # only used by `npm run lint`, which this workflow never runs).
+      - run: npm ci --ignore-scripts
 
       - name: Run unit test suite
         run: npm run test

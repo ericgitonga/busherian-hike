@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.12.1] - 2026-08-27
+
+### Security
+
+- CI (`e2e.yml`, `unit.yml`) now runs `npm ci --ignore-scripts` — blocks a
+  compromised/typosquatted transitive dependency's `postinstall` hook from running arbitrary
+  code on a runner that later holds real `TURSO_AUTH_TOKEN`/`VERCEL_TOKEN` (part of #28; the
+  short-term mitigation, not the full fix — CI still runs against the production database,
+  since a genuinely separate CI/E2E Turso database is a real infra-provisioning decision left
+  open in #28). Verified no dependency this project's build/test/e2e path needs relies on an
+  install-time script.
+
+tag: `v0.12.1`
+
 ## [0.12.0] - 2026-08-27
 
 ### Changed

@@ -27,7 +27,14 @@ jobs:
         with:
           node-version: 22
 
-      - run: npm ci
+      # --ignore-scripts (issue #28): blocks a compromised/typosquatted transitive dependency's
+      # postinstall hook from running arbitrary code during install — real Turso/Vercel
+      # credentials land on this runner a few steps below, and this is the cheapest available
+      # mitigation short of splitting CI onto its own non-production database. Verified
+      # 2026-08-27 that no dependency this workflow actually needs relies on an install-time
+      # script (the one real postinstall in the tree, unrs-resolver's, belongs to
+      # eslint-import-resolver-typescript — only used by `npm run lint`, never run here).
+      - run: npm ci --ignore-scripts
 
       - name: Pull env vars
         run: npx vercel env pull .env.local --environment=preview --token=${{ secrets.VERCEL_TOKEN }} --yes
