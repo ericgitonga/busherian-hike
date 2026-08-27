@@ -69,6 +69,13 @@ export async function markCheckedIn(registrationId: string): Promise<void> {
   });
 }
 
+// Full rows, including next-of-kin numbers — gated behind ORGANISER_PIN at the route level
+// (see src/app/api/export/registrations/route.ts), never called from anywhere public-facing.
+export async function getAllRegistrations(): Promise<Record<string, unknown>[]> {
+  const result = await db.execute("SELECT * FROM registrations ORDER BY created_at");
+  return result.rows.map((row) => ({ ...row }));
+}
+
 export async function purgeContactFields(): Promise<number> {
   const result = await db.execute(
     `UPDATE registrations

@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.10.0] - 2026-08-27
+
+### Added
+
+- `/export`: PIN-gated (same `ORGANISER_PIN` as `/checkin`) full-dataset CSV download,
+  including next-of-kin numbers — "only Luchiri and named committee members" from the brief
+  (closes #11)
+
+tag: `v0.10.0`
+
 ## [0.9.0] - 2026-08-27
 
 ### Added
