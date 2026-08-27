@@ -56,6 +56,7 @@ export default function RegistrationForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [full, setFull] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
 
   function update<K extends FieldName>(field: K, value: (typeof initialValues)[K]) {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -78,6 +79,8 @@ export default function RegistrationForm() {
     if (!result.success) {
       if (result.reason === "full") {
         setFull(true);
+      } else if (result.reason === "rate_limited") {
+        setRateLimited(true);
       } else {
         setErrors(result.errors);
       }
@@ -97,6 +100,18 @@ export default function RegistrationForm() {
         <p className="mt-1 text-sm">
           All slots for the hike have been claimed.
         </p>
+      </div>
+    );
+  }
+
+  if (rateLimited) {
+    return (
+      <div
+        data-testid="registration-rate-limited"
+        className="rounded-md border border-amber-200 bg-amber-50 px-4 py-6 text-center text-amber-900"
+      >
+        <p className="font-semibold">Too many attempts.</p>
+        <p className="mt-1 text-sm">Please wait a bit and try again.</p>
       </div>
     );
   }

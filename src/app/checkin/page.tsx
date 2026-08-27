@@ -88,7 +88,11 @@ export default function CheckinPage() {
         body: JSON.stringify({ pin: pinInput }),
       });
       if (!res.ok) {
-        setPinError("Wrong PIN.");
+        setPinError(
+          res.status === 429
+            ? "Too many attempts — wait a few minutes and try again."
+            : "Wrong PIN.",
+        );
         return;
       }
       const data = await res.json();

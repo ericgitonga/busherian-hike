@@ -21,11 +21,21 @@ wrong reason regardless of what's actually rendered/filtered on screen. Scope ev
 """
 
 import os
+import uuid
 from contextlib import contextmanager
 
 from playwright.sync_api import sync_playwright
 
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:3000").rstrip("/")
+
+
+def synthetic_client_id() -> str:
+    """A fresh identifier for src/lib/rate-limit.ts's IP-keyed buckets (sent as
+    X-Forwarded-For). Keeps each e2e session's rate-limit usage isolated from every other
+    session's — including a concurrent/rerun CI job against the same shared database (see
+    issue #28) — so no two test sessions can ever collide on the same bucket by accident.
+    """
+    return f"e2e-{uuid.uuid4()}"
 
 
 @contextmanager
@@ -34,6 +44,7 @@ def browser_page():
         browser = p.chromium.launch()
         try:
             page = browser.new_page(base_url=BASE_URL)
+            page.set_extra_http_headers({"x-forwarded-for": synthetic_client_id()})
             yield page
         finally:
             browser.close()
