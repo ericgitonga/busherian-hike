@@ -18,7 +18,11 @@ export default function ExportPage() {
         body: JSON.stringify({ pin }),
       });
       if (!res.ok) {
-        setError("Wrong PIN.");
+        setError(
+          res.status === 429
+            ? "Too many attempts — wait a few minutes and try again."
+            : "Wrong PIN.",
+        );
         return;
       }
       const blob = await res.blob();

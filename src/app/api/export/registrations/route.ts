@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { verifyPin } from "@/lib/auth";
+import {
+  clientIpFromHeaders,
+  isLockedOut,
+  PIN_AUTH_RATE_LIMIT,
+  recordAuthFailure,
+} from "@/lib/rate-limit";
 import { toCsv } from "@/lib/csv";
 import { getAllRegistrations } from "@/lib/registrations-store";
 
@@ -24,11 +30,19 @@ const COLUMNS = [
   "created_at",
 ];
 
+const ROUTE = "export";
+
 // Same shared secret as /checkin (see SKILL.md's "Organiser check-in" section for why) — this
 // is the "only Luchiri and named committee members" gate from the brief, not a separate one.
 export async function POST(request: Request) {
+  const ip = clientIpFromHeaders(request.headers);
+  if (await isLockedOut(ROUTE, ip, PIN_AUTH_RATE_LIMIT)) {
+    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+  }
+
   const { pin } = await request.json();
   if (!verifyPin(pin)) {
+    await recordAuthFailure(ROUTE, ip, PIN_AUTH_RATE_LIMIT);
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

@@ -10,6 +10,8 @@ const client = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-await client.execute(schema);
+// executeMultiple, not execute — schema.sql now has more than one statement (registrations,
+// rate_limits, plus an index).
+await client.executeMultiple(schema);
 console.log("Schema applied.");
 client.close();

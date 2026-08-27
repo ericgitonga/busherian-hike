@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.11.0] - 2026-08-27
+
+### Added
+
+- Rate limiting on PIN-gated routes (`/checkin/verify-pin`, `/checkin/mark`,
+  `/export/registrations`) and public registration (`registerHiker`) — closes the brute-force
+  volume gap left after v0.10.1's timing-safe comparison fix (closes #26). New `src/lib/
+  rate-limit.ts` and `rate_limits` table (Turso-backed, no separate KV/Redis). PIN routes only
+  consume the limit on a *wrong* PIN (5 per 15 minutes, per route+IP) so real high-frequency
+  check-in-scanner traffic is never throttled; registration consumes on every submission
+  (5 per hour per IP), since there's no correct/incorrect distinction there.
+
+tag: `v0.11.0`
+
 ## [0.10.1] - 2026-08-27
 
 ### Security
