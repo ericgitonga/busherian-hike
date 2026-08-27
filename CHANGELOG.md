@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.4.0] - 2026-08-27
+
+### Added
+
+- Public "slots remaining" counter on the home page, backed by a `GET /api/capacity` endpoint
+  that exposes a count only, never underlying rows, per the brief
+- Hard capacity cap of 10 hikers (placeholder, `src/lib/capacity.ts`), counted against paid
+  registrations only; `registerHiker` now refuses new registrations once slots run out
+  (closes #4)
+
+tag: `v0.4.0`
+
 ## [0.3.0] - 2026-08-27
 
 ### Added

@@ -53,6 +53,7 @@ export default function RegistrationForm() {
   const [errors, setErrors] = useState<RegistrationFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [full, setFull] = useState(false);
 
   function update<K extends FieldName>(field: K, value: (typeof initialValues)[K]) {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -73,11 +74,29 @@ export default function RegistrationForm() {
     setSubmitting(false);
 
     if (!result.success) {
-      setErrors(result.errors);
+      if (result.reason === "full") {
+        setFull(true);
+      } else {
+        setErrors(result.errors);
+      }
       return;
     }
 
     setSubmitted(true);
+  }
+
+  if (full) {
+    return (
+      <div
+        data-testid="registration-full"
+        className="rounded-md border border-amber-200 bg-amber-50 px-4 py-6 text-center text-amber-900"
+      >
+        <p className="font-semibold">Sorry, we&apos;re fully booked.</p>
+        <p className="mt-1 text-sm">
+          All slots for the hike have been claimed.
+        </p>
+      </div>
+    );
   }
 
   if (submitted) {
