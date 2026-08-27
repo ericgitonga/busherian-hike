@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { verifyPin } from "@/lib/auth";
 import { toCsv } from "@/lib/csv";
 import { getAllRegistrations } from "@/lib/registrations-store";
 
@@ -27,7 +28,7 @@ const COLUMNS = [
 // is the "only Luchiri and named committee members" gate from the brief, not a separate one.
 export async function POST(request: Request) {
   const { pin } = await request.json();
-  if (!process.env.ORGANISER_PIN || pin !== process.env.ORGANISER_PIN) {
+  if (!verifyPin(pin)) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
