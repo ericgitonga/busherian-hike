@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.2.0] - 2026-08-27
+
+### Added
+
+- Registration form on the home page capturing all brief fields — name, age group, school,
+  year left, guest count, next-of-kin name+contact, bus toggle, after-party toggle, and an
+  optional email address — with client- and server-side validation via Zod (closes #2)
+
+tag: `v0.2.0`
+
 ## [0.1.1] - 2026-08-27
 
 ### Added
