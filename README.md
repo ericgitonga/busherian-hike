@@ -1,4 +1,4 @@
-# ahs-aghs-hike
+# busherian-hike
 
 Registration, IntaSend/M-Pesa payment, and QR check-in for the AHS/AGHS alumni Ngong Hills hike
 (19 September 2026). A one-off event tool, not a reusable multi-event platform.
