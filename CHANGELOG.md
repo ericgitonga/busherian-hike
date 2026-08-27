@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.6.0] - 2026-08-27
+
+### Added
+
+- IntaSend Payment Link CTA on the registration success screen (KES 1,200 per hiker,
+  placeholder) — non-functional until the real till passes IntaSend's business-registration
+  checks (closes #6)
+
+tag: `v0.6.0`
+
 ## [0.5.0] - 2026-08-27
 
 ### Added
