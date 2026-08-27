@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.1.1] - 2026-08-27
+
+### Added
+
+- Documented the live production URL in README, now that Vercel is connected and deployed
+  (closes #13)
+
+tag: `v0.1.1`
+
 ## [0.1.0] - 2026-08-27
 
 ### Added
