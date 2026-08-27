@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.3.0] - 2026-08-27
+
+### Added
+
+- Registrations data store: one Turso (serverless SQLite) table holding every registration
+  field plus payment/check-in state, provisioned via the Vercel Marketplace integration; the
+  registration form now actually persists submissions instead of only validating them
+  (closes #3)
+
+tag: `v0.3.0`
+
 ## [0.2.0] - 2026-08-27
 
 ### Added

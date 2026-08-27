@@ -4,13 +4,12 @@ import {
   parseRegistration,
   type RegistrationFieldErrors,
 } from "@/lib/registration";
+import { insertRegistration } from "@/lib/registrations-store";
 
 export type RegisterHikerResult =
-  | { success: true }
+  | { success: true; id: string }
   | { success: false; errors: RegistrationFieldErrors };
 
-// No data store exists yet (tracked in issue #3) — this validates the submission but does not
-// persist it. Swap in a real write once the registrations table lands.
 export async function registerHiker(
   input: unknown,
 ): Promise<RegisterHikerResult> {
@@ -18,5 +17,6 @@ export async function registerHiker(
   if (!result.success) {
     return { success: false, errors: result.errors };
   }
-  return { success: true };
+  const id = await insertRegistration(result.data);
+  return { success: true, id };
 }

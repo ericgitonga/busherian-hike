@@ -2,11 +2,20 @@ name: E2E
 
 # Gates a PR on the golden-path E2E suite (e2e/) before it can merge to main. Runs a locally
 # built-and-started server in the CI runner, not a live Vercel Preview deployment — avoids
-# depending on Vercel's own deployment-webhook timing.
+# depending on Vercel's own deployment-webhook timing. Real Turso credentials are still pulled
+# in (there's only one database — no dev/prod split for this one-off) so registration submits
+# actually persist during the run, same as umoja-voices' pattern. Requires a VERCEL_TOKEN
+# repository secret (Vercel dashboard -> Account Settings -> Tokens) with access to the
+# egm2/busherian-hike project; org/project IDs below are plain identifiers (same ones in the
+# gitignored .vercel/project.json), not secrets.
 
 on:
   pull_request:
     branches: [main]
+
+env:
+  VERCEL_ORG_ID: team_zqkuLyNQ340W09pXdT0og99l
+  VERCEL_PROJECT_ID: prj_Gt5jn4hYV4wKn4tMbhoARrNoPfX8
 
 jobs:
   e2e:
@@ -19,6 +28,12 @@ jobs:
           node-version: 22
 
       - run: npm ci
+
+      - name: Pull env vars
+        run: npx vercel env pull .env.local --environment=preview --token=${{ secrets.VERCEL_TOKEN }} --yes
+
+      - name: Apply pending migrations
+        run: npm run db:migrate
 
       - run: npm run build
 
@@ -46,6 +61,12 @@ jobs:
 
       - name: Run E2E suite
         run: python e2e/run.py
+
+      - name: Clean up test registrations
+        # test_registration.py's golden path submits a real row to the shared Turso database
+        # (no dev/prod split) — always remove it, even if the suite itself failed above.
+        if: always()
+        run: npm run db:cleanup-test-data
 
       - name: Print server log
         if: always()
