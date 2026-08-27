@@ -33,7 +33,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+    <label className="flex flex-col gap-1 text-sm font-medium text-zinc-900">
       {label}
       {children}
       {error && (
@@ -46,7 +46,7 @@ function Field({
 }
 
 const inputClass =
-  "rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900 focus:border-zinc-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
+  "rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900 focus:border-zinc-500 focus:outline-none";
 
 export default function RegistrationForm() {
   const [values, setValues] = useState(initialValues);
@@ -84,7 +84,7 @@ export default function RegistrationForm() {
     return (
       <div
         data-testid="registration-success"
-        className="rounded-md border border-green-200 bg-green-50 px-4 py-6 text-center text-green-900 dark:border-green-900 dark:bg-green-950 dark:text-green-100"
+        className="rounded-md border border-green-200 bg-green-50 px-4 py-6 text-center text-green-900"
       >
         <p className="font-semibold">You&apos;re registered!</p>
         <p className="mt-1 text-sm">
@@ -181,7 +181,7 @@ export default function RegistrationForm() {
         />
       </Field>
 
-      <label className="flex items-center gap-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+      <label className="flex items-center gap-2 text-sm font-medium text-zinc-900">
         <input
           data-testid="field-needsBus"
           type="checkbox"
@@ -191,7 +191,7 @@ export default function RegistrationForm() {
         I need a seat on the bus
       </label>
 
-      <label className="flex items-center gap-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+      <label className="flex items-center gap-2 text-sm font-medium text-zinc-900">
         <input
           data-testid="field-attendingAfterParty"
           type="checkbox"
@@ -215,7 +215,7 @@ export default function RegistrationForm() {
         data-testid="submit-registration"
         type="submit"
         disabled={submitting}
-        className="mt-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
+        className="mt-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50"
       >
         {submitting ? "Submitting…" : "Register"}
       </button>
