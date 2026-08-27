@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.10.1] - 2026-08-27
+
+### Security
+
+- Replaced the `!==` comparison of `ORGANISER_PIN`/`CRON_SECRET` against submitted values
+  (`/checkin/verify-pin`, `/checkin/mark`, `/export/registrations`,
+  `/cron/purge-contact-fields`) with a constant-time comparison (`crypto.timingSafeEqual` via a
+  new `src/lib/auth.ts`), closing a timing-attack side channel that let response latency leak
+  how many leading characters of a guess were correct (closes #24)
+
+tag: `v0.10.1`
+
 ## [0.10.0] - 2026-08-27
 
 ### Added
