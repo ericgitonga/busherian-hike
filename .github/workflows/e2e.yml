@@ -29,6 +29,12 @@ jobs:
 
       - run: npm ci
 
+      - name: Debug whoami
+        run: npx vercel whoami --token=${{ secrets.VERCEL_TOKEN }} --scope egm2
+
+      - name: Debug project inspect
+        run: npx vercel project inspect busherian-hike --token=${{ secrets.VERCEL_TOKEN }} --scope egm2
+
       - name: Pull env vars
         run: npx vercel env pull .env.local --environment=preview --token=${{ secrets.VERCEL_TOKEN }} --yes
 
