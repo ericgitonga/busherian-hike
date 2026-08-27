@@ -59,14 +59,17 @@ export async function getPaidAttendees(): Promise<Attendee[]> {
 }
 
 // Idempotent: only touches rows not already checked in, so a duplicate sync (offline retry,
-// double scan) never overwrites the original checked_in_at timestamp.
-export async function markCheckedIn(registrationId: string): Promise<void> {
-  await db.execute({
+// double scan) never overwrites the original checked_in_at timestamp. Returns whether a row was
+// actually matched — a garbage or already-checked-in id is a silent no-op otherwise, with no way
+// for the caller to tell that apart from a real check-in (issue #38).
+export async function markCheckedIn(registrationId: string): Promise<boolean> {
+  const result = await db.execute({
     sql: `UPDATE registrations
           SET checked_in = 1, checked_in_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
           WHERE id = ? AND checked_in = 0`,
     args: [registrationId],
   });
+  return result.rowsAffected > 0;
 }
 
 // Full rows, including next-of-kin numbers — gated behind ORGANISER_PIN at the route level

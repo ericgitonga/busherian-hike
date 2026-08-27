@@ -39,12 +39,14 @@ def test_mark_authorized_by_session_cookie_after_unlock():
 
         # No PIN in the body at all — the session cookie set by verify-pin above is what
         # authorizes this call now. A nonexistent registrationId still returns 200 (mark is a
-        # no-op UPDATE on an unmatched id) — this only asserts that auth itself passed.
+        # no-op UPDATE on an unmatched id) — matched: false (issue #38) is what actually
+        # distinguishes that from a real check-in.
         response = page.request.post(
             f"{BASE_URL}/api/checkin/mark",
             data={"registrationId": "does-not-exist"},
         )
         assert response.status == 200
+        assert response.json()["matched"] is False
 
 
 def test_lock_clears_the_session():

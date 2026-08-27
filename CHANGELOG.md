@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.12.4] - 2026-08-27
+
+### Added
+
+- `/checkin/mark` now returns `{ok: true, matched: boolean}` instead of always `{ok: true}`,
+  distinguishing a real check-in from a no-op on a garbage/already-checked-in id — plus a
+  minimal server-side log line (route, id, outcome; never the session token or PII) for
+  post-event audit trail (closes #38)
+
+tag: `v0.12.4`
+
 ## [0.12.3] - 2026-08-27
 
 ### Security
