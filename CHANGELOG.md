@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.12.5] - 2026-08-27
+
+### Added
+
+- Test coverage for `cron/purge-contact-fields` (closes #39) — was previously zero, unit or
+  e2e. `src/app/api/cron/purge-contact-fields/route.test.ts` asserts: missing
+  `Authorization` header → 401; wrong `CRON_SECRET` → 401; correct secret before the retention
+  cutoff → `{purged: false, reason: "before retention cutoff"}` with `purgeContactFields` never
+  called; correct secret past the cutoff → `{purged: true, count}` with `purgeContactFields`
+  invoked. Runs the route handler directly with a mocked `registrations-store` module (avoids
+  a real DB dependency) and `vi.setSystemTime` (avoids depending on the real 2026-09-19 event
+  date, which is over a year past the retention window as of this fix).
+
+tag: `v0.12.5`
+
 ## [0.12.4] - 2026-08-27
 
 ### Added
