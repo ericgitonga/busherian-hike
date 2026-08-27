@@ -19,6 +19,9 @@ export async function POST(request: Request) {
   if (typeof registrationId !== "string" || !registrationId) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
-  await markCheckedIn(registrationId);
-  return NextResponse.json({ ok: true });
+  const matched = await markCheckedIn(registrationId);
+  // Minimal audit trail for post-event review (issue #38) — route, id, and outcome only, never
+  // the session token or any PII.
+  console.log(JSON.stringify({ route: "checkin/mark", registrationId, matched }));
+  return NextResponse.json({ ok: true, matched });
 }
