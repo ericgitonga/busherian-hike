@@ -40,9 +40,11 @@ def test_checkin_verify_pin_locks_out_after_repeated_wrong_attempts():
 
 
 def test_checkin_verify_pin_never_throttles_correct_attempts():
-    # A correct PIN never consumes the failure budget (see rate-limit.ts) — the check-in
-    # scanner calls /checkin/mark once per attendee, which would break real event-day usage
-    # within minutes if every *correct* call counted toward the same limit.
+    # A correct PIN never consumes the failure budget (see rate-limit.ts) — and, since issue
+    # #27, the first correct call also sets a session cookie that shortcuts every later call
+    # around the PIN check entirely (see test_checkin_session.py). Either way, repeated calls
+    # with the correct PIN must never 429 — the check-in scanner effectively does this once per
+    # attendee, which would break real event-day usage within minutes otherwise.
     match = re.search(r'^ORGANISER_PIN="?([^"\n]+)"?$', ENV_LOCAL.read_text(), re.MULTILINE)
     assert match, "ORGANISER_PIN not found in .env.local — run `vercel env pull .env.local`"
     pin = match.group(1)

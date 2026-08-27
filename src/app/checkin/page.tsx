@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { matchScannedId, type CachedAttendee } from "@/lib/checkin-match";
 
-const PIN_KEY = "checkin-pin";
+const UNLOCKED_KEY = "checkin-unlocked";
 const ATTENDEES_KEY = "checkin-attendees";
 const PENDING_SYNCS_KEY = "checkin-pending-syncs";
 
@@ -24,7 +24,12 @@ export default function CheckinPage() {
   // Lazy initializers, not an effect — localStorage doesn't exist during Next's server render
   // (readJson no-ops there), but by first client render (no SSR content depends on this) it
   // does, so there's no hydration mismatch to worry about and no extra render/effect needed.
-  const [pin, setPin] = useState<string | null>(() => readJson<string | null>(PIN_KEY, null));
+  // Only a boolean "was this device unlocked" flag lives in localStorage (issue #27) — the
+  // actual credential is a short-lived, httpOnly session cookie the browser sends automatically,
+  // never something client JS can read or that lingers indefinitely.
+  const [unlocked, setUnlocked] = useState<boolean>(
+    () => typeof window !== "undefined" && localStorage.getItem(UNLOCKED_KEY) === "1",
+  );
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
@@ -37,10 +42,10 @@ export default function CheckinPage() {
   const [banner, setBanner] = useState<Banner>(null);
   const [scannerError, setScannerError] = useState<string | null>(null);
 
-  const stateRef = useRef({ pin, attendees, pendingSyncs });
+  const stateRef = useRef({ unlocked, attendees, pendingSyncs });
   useEffect(() => {
-    stateRef.current = { pin, attendees, pendingSyncs };
-  }, [pin, attendees, pendingSyncs]);
+    stateRef.current = { unlocked, attendees, pendingSyncs };
+  }, [unlocked, attendees, pendingSyncs]);
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -51,8 +56,8 @@ export default function CheckinPage() {
   }, []);
 
   const flushPendingSyncs = useCallback(async () => {
-    const { pin: currentPin, pendingSyncs: current } = stateRef.current;
-    if (!currentPin || current.length === 0) return;
+    const { unlocked: isUnlocked, pendingSyncs: current } = stateRef.current;
+    if (!isUnlocked || current.length === 0) return;
 
     const stillPending: PendingSync[] = [];
     for (const item of current) {
@@ -60,7 +65,7 @@ export default function CheckinPage() {
         const res = await fetch("/api/checkin/mark", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pin: currentPin, registrationId: item.registrationId }),
+          body: JSON.stringify({ registrationId: item.registrationId }),
         });
         if (!res.ok) stillPending.push(item);
       } catch {
@@ -96,9 +101,9 @@ export default function CheckinPage() {
         return;
       }
       const data = await res.json();
-      localStorage.setItem(PIN_KEY, pinInput);
+      localStorage.setItem(UNLOCKED_KEY, "1");
       localStorage.setItem(ATTENDEES_KEY, JSON.stringify(data.attendees));
-      setPin(pinInput);
+      setUnlocked(true);
       setAttendees(data.attendees);
     } catch {
       setPinError("Couldn't reach the server — you need connectivity the first time you load this page.");
@@ -108,12 +113,13 @@ export default function CheckinPage() {
   }
 
   async function refreshList() {
-    if (!pin) return;
+    if (!unlocked) return;
     try {
+      // No PIN in the body — the session cookie set by submitPin carries auth from here on.
       const res = await fetch("/api/checkin/verify-pin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin }),
+        body: JSON.stringify({}),
       });
       if (!res.ok) return;
       const data = await res.json();
@@ -126,6 +132,19 @@ export default function CheckinPage() {
     } catch {
       // Offline — the cached list stands.
     }
+  }
+
+  async function lockDevice() {
+    try {
+      await fetch("/api/checkin/lock", { method: "POST" });
+    } catch {
+      // Best-effort — clearing local state below still stops this device from acting as
+      // unlocked even if the network call to also clear the server-side cookie fails.
+    }
+    localStorage.removeItem(UNLOCKED_KEY);
+    localStorage.removeItem(ATTENDEES_KEY);
+    setAttendees([]);
+    setUnlocked(false);
   }
 
   const handleScan = useCallback((decodedText: string) => {
@@ -164,7 +183,7 @@ export default function CheckinPage() {
   }, [handleScan]);
 
   useEffect(() => {
-    if (!pin) return;
+    if (!unlocked) return;
 
     let scanner: import("html5-qrcode").Html5QrcodeScanner | undefined;
     let cancelled = false;
@@ -186,9 +205,9 @@ export default function CheckinPage() {
       cancelled = true;
       scanner?.clear().catch(() => setScannerError("Camera failed to start."));
     };
-  }, [pin]);
+  }, [unlocked]);
 
-  if (!pin) {
+  if (!unlocked) {
     return (
       <div className="flex flex-1 flex-col items-center bg-white px-4 py-12">
         <main className="w-full max-w-sm">
@@ -253,13 +272,22 @@ export default function CheckinPage() {
           <p className="mt-2 text-xs text-red-600">{scannerError}</p>
         )}
 
-        <button
-          data-testid="checkin-refresh"
-          onClick={refreshList}
-          className="mt-4 rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
-        >
-          Refresh list
-        </button>
+        <div className="mt-4 flex gap-2">
+          <button
+            data-testid="checkin-refresh"
+            onClick={refreshList}
+            className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+          >
+            Refresh list
+          </button>
+          <button
+            data-testid="checkin-lock"
+            onClick={lockDevice}
+            className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+          >
+            Lock
+          </button>
+        </div>
       </main>
     </div>
   );
