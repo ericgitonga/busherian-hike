@@ -2,20 +2,21 @@ name: E2E
 
 # Gates a PR on the golden-path E2E suite (e2e/) before it can merge to main. Runs a locally
 # built-and-started server in the CI runner, not a live Vercel Preview deployment — avoids
-# depending on Vercel's own deployment-webhook timing. Real Turso credentials are still pulled
-# in (there's only one database — no dev/prod split for this one-off) so registration submits
-# actually persist during the run, same as umoja-voices' pattern. Requires a VERCEL_TOKEN
-# repository secret (Vercel dashboard -> Account Settings -> Tokens) with access to the
-# egm2/busherian-hike project; org/project IDs below are plain identifiers (same ones in the
-# gitignored .vercel/project.json), not secrets.
+# depending on Vercel's own deployment-webhook timing.
+#
+# CI runs against its own dedicated Turso database (issue #28), not production — provisioned
+# 2026-08-27 via the same Vercel Marketplace Turso integration as the main database, connected
+# only to the unused "development" Vercel environment so it's fully decoupled from
+# Preview/Production. Credentials live as repository secrets (TURSO_DATABASE_URL/
+# TURSO_AUTH_TOKEN), not pulled from Vercel at all — this also drops the VERCEL_TOKEN/
+# `vercel env pull` dependency the old shared-DB setup needed. ORGANISER_PIN/CRON_SECRET are
+# also repository secrets (same values as production today — only the database differs; CI's
+# app build and CI's own tests both read the same secret, so they only need to agree with each
+# other, not with production).
 
 on:
   pull_request:
     branches: [main]
-
-env:
-  VERCEL_ORG_ID: team_zqkuLyNQ340W09pXdT0og99l
-  VERCEL_PROJECT_ID: prj_Gt5jn4hYV4wKn4tMbhoARrNoPfX8
 
 jobs:
   e2e:
@@ -28,16 +29,26 @@ jobs:
           node-version: 22
 
       # --ignore-scripts (issue #28): blocks a compromised/typosquatted transitive dependency's
-      # postinstall hook from running arbitrary code during install — real Turso/Vercel
-      # credentials land on this runner a few steps below, and this is the cheapest available
-      # mitigation short of splitting CI onto its own non-production database. Verified
-      # 2026-08-27 that no dependency this workflow actually needs relies on an install-time
-      # script (the one real postinstall in the tree, unrs-resolver's, belongs to
-      # eslint-import-resolver-typescript — only used by `npm run lint`, never run here).
+      # postinstall hook from running arbitrary code during install — this runner holds real
+      # secrets a few steps below. Verified 2026-08-27 that no dependency this workflow actually
+      # needs relies on an install-time script (the one real postinstall in the tree,
+      # unrs-resolver's, belongs to eslint-import-resolver-typescript — only used by
+      # `npm run lint`, which this workflow never runs).
       - run: npm ci --ignore-scripts
 
-      - name: Pull env vars
-        run: npx vercel env pull .env.local --environment=preview --token=${{ secrets.VERCEL_TOKEN }} --yes
+      - name: Write .env.local from repository secrets
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          ORGANISER_PIN: ${{ secrets.ORGANISER_PIN }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          cat > .env.local <<EOF
+          TURSO_DATABASE_URL=$TURSO_DATABASE_URL
+          TURSO_AUTH_TOKEN=$TURSO_AUTH_TOKEN
+          ORGANISER_PIN=$ORGANISER_PIN
+          CRON_SECRET=$CRON_SECRET
+          EOF
 
       - name: Apply pending migrations
         run: npm run db:migrate
@@ -70,8 +81,10 @@ jobs:
         run: python e2e/run.py
 
       - name: Clean up test registrations
-        # test_registration.py's golden path submits a real row to the shared Turso database
-        # (no dev/prod split) — always remove it, even if the suite itself failed above.
+        # test_registration.py's golden path (and test_rate_limit.py's throttle spec) submit
+        # real rows to the CI-only Turso database — always remove them, even if the suite itself
+        # failed above. Cheap and self-contained now that this is CI's own database, not
+        # production, but still good hygiene: an unbounded CI database is still a database.
         if: always()
         run: npm run db:cleanup-test-data
 
