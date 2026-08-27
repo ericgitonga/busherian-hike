@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.9.0] - 2026-08-27
+
+### Added
+
+- Organiser check-in page (`/checkin`): offline-capable QR scanning against the paid-attendee
+  list (html5-qrcode, service-worker-cached shell, localStorage-cached data and pending-sync
+  queue), PIN-gated (`ORGANISER_PIN`, shared secret — not in the original issue text, added
+  deliberately since the page otherwise had zero protection) (closes #10)
+
+tag: `v0.9.0`
+
 ## [0.8.0] - 2026-08-27
 
 ### Added

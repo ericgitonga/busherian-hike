@@ -45,6 +45,30 @@ export async function getSlotsRemaining(): Promise<number> {
 // fields. Idempotent: rows already purged just don't match the WHERE clause again. Everything
 // else on the row (name, school, headcount fields, paid/checked-in state) is left intact —
 // issue #9's scope is these specific fields, not full anonymisation.
+export type Attendee = { id: string; name: string; checkedIn: boolean };
+
+export async function getPaidAttendees(): Promise<Attendee[]> {
+  const result = await db.execute(
+    "SELECT id, name, checked_in FROM registrations WHERE paid = 1",
+  );
+  return result.rows.map((row) => ({
+    id: String(row.id),
+    name: String(row.name),
+    checkedIn: Number(row.checked_in) === 1,
+  }));
+}
+
+// Idempotent: only touches rows not already checked in, so a duplicate sync (offline retry,
+// double scan) never overwrites the original checked_in_at timestamp.
+export async function markCheckedIn(registrationId: string): Promise<void> {
+  await db.execute({
+    sql: `UPDATE registrations
+          SET checked_in = 1, checked_in_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+          WHERE id = ? AND checked_in = 0`,
+    args: [registrationId],
+  });
+}
+
 export async function purgeContactFields(): Promise<number> {
   const result = await db.execute(
     `UPDATE registrations
