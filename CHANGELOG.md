@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.12.3] - 2026-08-27
+
+### Security
+
+- CSV export (`/export`) is no longer vulnerable to formula/CSV injection (closes #29).
+  `src/lib/csv.ts`'s `toCsv()` now prefixes any field beginning with `=`, `+`, `-`, `@`, tab, or
+  CR with a literal `'` before RFC4180 escaping — the characters Excel and Google Sheets treat
+  as the start of a formula on CSV import — so an attacker-controlled registrant `name` like
+  `=HYPERLINK(...)` renders as inert text instead of executing when a committee member opens the
+  export.
+
+tag: `v0.12.3`
+
 ## [0.12.2] - 2026-08-27
 
 ### Security
