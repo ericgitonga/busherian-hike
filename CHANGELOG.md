@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.12.2] - 2026-08-27
+
+### Security
+
+- CI now runs against its own dedicated Turso database instead of production (closes #28). A
+  second Turso database (`busherian-hike-ci`) was provisioned through the same Vercel
+  Marketplace Turso integration, connected only to the unused `development` Vercel environment
+  so it's fully decoupled from Preview/Production. `e2e.yml` no longer runs `vercel env pull` or
+  needs `VERCEL_TOKEN` at all — it writes `.env.local` directly from four repository secrets
+  (`TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN` pointing at the CI database, `ORGANISER_PIN`/
+  `CRON_SECRET` unchanged). A CI job can no longer read, write, or lose a single row of real
+  registrant PII, regardless of any future supply-chain compromise in the dependency tree.
+
+tag: `v0.12.2`
+
 ## [0.12.1] - 2026-08-27
 
 ### Security
