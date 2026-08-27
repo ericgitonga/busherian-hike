@@ -1,3 +1,4 @@
+import PartnerStrip from "@/components/PartnerStrip";
 import RegistrationForm from "@/components/RegistrationForm";
 import SlotsRemaining from "@/components/SlotsRemaining";
 import { CAPACITY_CAP } from "@/lib/capacity";
@@ -23,6 +24,7 @@ export default async function Home() {
           <SlotsRemaining remaining={remaining} cap={CAPACITY_CAP} />
         </header>
         <RegistrationForm />
+        <PartnerStrip />
       </main>
     </div>
   );

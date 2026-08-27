@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.5.0] - 2026-08-27
+
+### Added
+
+- Static partner-logo strip on the home page showing the placeholder partner ("Royal Nairobi
+  Golf Club"), no CMS — a single swappable array (closes #5)
+
+tag: `v0.5.0`
+
 ## [0.4.0] - 2026-08-27
 
 ### Added
