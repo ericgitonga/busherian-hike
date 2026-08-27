@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/purge-contact-fields",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}

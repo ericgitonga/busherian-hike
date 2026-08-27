@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.8.0] - 2026-08-27
+
+### Added
+
+- Privacy notice (`/privacy`) naming Luchiri Omoto as data controller of record (placeholder,
+  pending his confirmation), linked from the home page and from a next-of-kin consent hint on
+  the registration form
+- Daily Vercel Cron job (`GET /api/cron/purge-contact-fields`) that empties next-of-kin and
+  contact fields 30 days after the event (placeholder retention window), secured by
+  `CRON_SECRET` (closes #9)
+
+tag: `v0.8.0`
+
 ## [0.7.0] - 2026-08-27
 
 ### Added
