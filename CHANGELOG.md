@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.18.0] - 2026-08-28
+
+### Changed
+
+- Capacity cap confirmed at 100 slots, replacing the placeholder cap of 10
+  (`CAPACITY_CAP` in `src/lib/capacity.ts`) — the public "slots remaining" counter and
+  `/api/capacity` pick it up automatically since they already read the constant directly
+  (closes #54)
+
+tag: `v0.18.0`
+
 ## [0.17.0] - 2026-08-28
 
 ### Changed
