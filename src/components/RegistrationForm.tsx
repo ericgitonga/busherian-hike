@@ -5,7 +5,9 @@ import { useState, type FormEvent } from "react";
 import { registerHiker } from "@/app/actions";
 import {
   AGE_GROUP_OPTIONS,
+  HIKE_ONLY_INCLUSIONS,
   SCHOOL_OPTIONS,
+  SHARED_TICKET_INCLUSIONS,
   TICKET_TYPE_OPTIONS,
   type RegistrationFieldErrors,
 } from "@/lib/registration";
@@ -139,18 +141,11 @@ export default function RegistrationForm() {
         <div data-testid="fee-inclusions" className="mt-4 text-left text-xs text-green-800">
           <p className="font-medium">Your KES {PER_HIKER_FEE_KES} covers:</p>
           <ul className="mt-1 list-inside list-disc">
-            {values.ticketType === "hike_and_socials" && (
-              <>
-                <li>Transport to Ngong Hills and back</li>
-                <li>Entry fees to the park</li>
-                <li>A medal for your efforts</li>
-                <li>Water / hydration</li>
-              </>
-            )}
-            <li>Hot showers</li>
-            <li>Pizza (courtesy of Green Table)</li>
-            <li>A small gift hamper (various sponsors)</li>
-            <li>Parking at Impala Club</li>
+            {values.ticketType === "hike_and_socials" &&
+              HIKE_ONLY_INCLUSIONS.map((item) => <li key={item}>{item}</li>)}
+            {SHARED_TICKET_INCLUSIONS.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </div>
         <p className="mt-3 text-xs text-green-800">

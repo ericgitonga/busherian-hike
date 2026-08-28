@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.21.0] - 2026-08-28
+
+### Added
+
+- New `LandingHero.tsx` component, replacing the plain one-line header: the organiser's full
+  promotional copy (hype opener, event renamed "Ngong Hills Hike and Socials" with AHS/AGHS
+  house identity folded into supporting copy, Mbuzi/DJ Stretch/Impala Club highlights, a
+  side-by-side pricing section for both ticket tiers, the slots-remaining counter, and the
+  closing tagline) now sits above the registration form instead of it being the first thing on
+  the page.
+- `src/lib/registration.ts` gained `SHARED_TICKET_INCLUSIONS`/`HIKE_ONLY_INCLUSIONS` — the
+  single source of truth for "what does this ticket get you", now referenced by both the hero's
+  pricing cards and the registration success screen so the two can't drift out of sync (closes
+  #56)
+
+tag: `v0.21.0`
+
 ## [0.20.0] - 2026-08-28
 
 ### Added
