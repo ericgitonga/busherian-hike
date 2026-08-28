@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.13.0] - 2026-08-28
+
+### Added
+
+- Confirmed-sponsors strip (`src/lib/sponsors.ts`, `SponsorStrip.tsx`) below the existing
+  partner strip on the home page: Vecarian Plant (cash-sponsoring the Mbuzi/goat-roast budget)
+  and Eric Gitonga (in kind, linking to his site) — deliberately separate from `PARTNERS`
+  (Impala Club venue credit) and from the several approached-but-unconfirmed in-kind sponsors,
+  which stay unticketed until each actually confirms (closes #47)
+
+tag: `v0.13.0`
+
 ## [0.12.6] - 2026-08-27
 
 ### Security
