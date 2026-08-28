@@ -6,6 +6,7 @@ import { registerHiker } from "@/app/actions";
 import {
   AGE_GROUP_OPTIONS,
   SCHOOL_OPTIONS,
+  TICKET_TYPE_OPTIONS,
   type RegistrationFieldErrors,
 } from "@/lib/registration";
 import { PAYMENT_LINK_URL, PER_HIKER_FEE_KES } from "@/lib/payment";
@@ -19,7 +20,7 @@ const initialValues = {
   nextOfKinName: "",
   nextOfKinContact: "",
   needsBus: false,
-  attendingAfterParty: false,
+  ticketType: "hike_and_socials" as (typeof TICKET_TYPE_OPTIONS)[number]["value"],
   email: "",
 };
 
@@ -136,13 +137,19 @@ export default function RegistrationForm() {
           Pay KES {PER_HIKER_FEE_KES}
         </a>
         <div data-testid="fee-inclusions" className="mt-4 text-left text-xs text-green-800">
-          <p className="font-medium">Your KES {PER_HIKER_FEE_KES} hiking fee covers:</p>
+          <p className="font-medium">Your KES {PER_HIKER_FEE_KES} covers:</p>
           <ul className="mt-1 list-inside list-disc">
-            <li>Transport to Ngong Hills and back</li>
-            <li>Entry fees to the park</li>
-            <li>Hot showers after the hike</li>
-            <li>A medal</li>
-            <li>Water / hydration</li>
+            {values.ticketType === "hike_and_socials" && (
+              <>
+                <li>Transport to Ngong Hills and back</li>
+                <li>Entry fees to the park</li>
+                <li>A medal for your efforts</li>
+                <li>Water / hydration</li>
+              </>
+            )}
+            <li>Hot showers</li>
+            <li>Pizza (courtesy of Green Table)</li>
+            <li>A small gift hamper (various sponsors)</li>
             <li>Parking at Impala Club</li>
           </ul>
         </div>
@@ -257,15 +264,25 @@ export default function RegistrationForm() {
         I need a seat on the bus
       </label>
 
-      <label className="flex items-center gap-2 text-sm font-medium text-zinc-900">
-        <input
-          data-testid="field-attendingAfterParty"
-          type="checkbox"
-          checked={values.attendingAfterParty}
-          onChange={(e) => update("attendingAfterParty", e.target.checked)}
-        />
-        I&apos;m attending the after-party
-      </label>
+      <fieldset
+        data-testid="field-ticketType"
+        className="flex flex-col gap-1 text-sm font-medium text-zinc-900"
+      >
+        <legend className="mb-1">Ticket type — KES {PER_HIKER_FEE_KES} either way</legend>
+        {TICKET_TYPE_OPTIONS.map((option) => (
+          <label key={option.value} className="flex items-center gap-2 font-normal">
+            <input
+              data-testid={`ticket-type-${option.value}`}
+              type="radio"
+              name="ticketType"
+              value={option.value}
+              checked={values.ticketType === option.value}
+              onChange={() => update("ticketType", option.value)}
+            />
+            {option.label}
+          </label>
+        ))}
+      </fieldset>
 
       <Field label="Email (optional)" error={errors.email}>
         <input

@@ -1,3 +1,10 @@
+-- `CREATE TABLE IF NOT EXISTS` only shapes a brand-new database — it can't retroactively alter
+-- an already-provisioned one. `ticket_type` replaced the original `attending_after_party`
+-- column (issue #53); both the shared main/preview/prod database and the CI-only database had
+-- that column already, so `ALTER TABLE registrations DROP COLUMN attending_after_party` /
+-- `ADD COLUMN ticket_type ...` (matching the definition below) were run directly against each,
+-- once, outside of this file — this definition only matters again if either database is ever
+-- recreated from scratch.
 CREATE TABLE IF NOT EXISTS registrations (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -8,7 +15,8 @@ CREATE TABLE IF NOT EXISTS registrations (
   next_of_kin_name TEXT NOT NULL,
   next_of_kin_contact TEXT NOT NULL,
   needs_bus INTEGER NOT NULL DEFAULT 0,
-  attending_after_party INTEGER NOT NULL DEFAULT 0,
+  ticket_type TEXT NOT NULL DEFAULT 'hike_and_socials'
+    CHECK (ticket_type IN ('hike_and_socials', 'socials_only')),
   email TEXT,
   paid INTEGER NOT NULL DEFAULT 0,
   paid_at TEXT,

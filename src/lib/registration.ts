@@ -2,6 +2,13 @@ import { z } from "zod";
 
 export const SCHOOL_OPTIONS = ["AHS", "AGHS"] as const;
 
+export const TICKET_TYPE_VALUES = ["hike_and_socials", "socials_only"] as const;
+
+export const TICKET_TYPE_OPTIONS: { value: (typeof TICKET_TYPE_VALUES)[number]; label: string }[] = [
+  { value: "hike_and_socials", label: "Hike + Socials (After Party)" },
+  { value: "socials_only", label: "Socials only (no hike)" },
+];
+
 export const AGE_GROUP_OPTIONS = [
   "Under 18",
   "18–29",
@@ -39,7 +46,9 @@ export const registrationSchema = z.object({
     .trim()
     .regex(KENYAN_PHONE_REGEX, "Enter a valid phone number, e.g. 0712345678"),
   needsBus: z.boolean(),
-  attendingAfterParty: z.boolean(),
+  ticketType: z.enum(TICKET_TYPE_VALUES, {
+    message: "Select a ticket type",
+  }),
   email: z
     .union([z.literal(""), z.email("Enter a valid email address")])
     .optional(),

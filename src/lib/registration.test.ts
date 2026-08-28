@@ -10,7 +10,7 @@ const validInput = {
   nextOfKinName: "Kamau Njoroge",
   nextOfKinContact: "0712345678",
   needsBus: true,
-  attendingAfterParty: false,
+  ticketType: "hike_and_socials",
   email: "",
 };
 
@@ -41,6 +41,19 @@ describe("parseRegistration", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.errors.school).toBeDefined();
+    }
+  });
+
+  it("accepts the socials-only ticket type", () => {
+    const result = parseRegistration({ ...validInput, ticketType: "socials_only" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an invalid ticket type", () => {
+    const result = parseRegistration({ ...validInput, ticketType: "vip" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.errors.ticketType).toBeDefined();
     }
   });
 
