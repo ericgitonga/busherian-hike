@@ -9,6 +9,25 @@ export const TICKET_TYPE_OPTIONS: { value: (typeof TICKET_TYPE_VALUES)[number]; 
   { value: "socials_only", label: "Socials only (no hike)" },
 ];
 
+// What every ticket type includes, regardless of type — the after-party side of things.
+export const SHARED_TICKET_INCLUSIONS = [
+  "Hot showers",
+  "Pizza (courtesy of Green Table)",
+  "A small gift hamper (various sponsors)",
+  "Parking at Impala Club",
+];
+
+// Extra inclusions on top of SHARED_TICKET_INCLUSIONS, only for "hike_and_socials". Both this
+// and the shared list are the single source of truth for "what does this ticket get you" —
+// referenced by both the registration success screen and the landing page's pricing section, so
+// the two can't drift out of sync with each other.
+export const HIKE_ONLY_INCLUSIONS = [
+  "Transport to Ngong Hills and back",
+  "Entry fees to the park",
+  "A medal for your efforts",
+  "Water / hydration",
+];
+
 export const AGE_GROUP_OPTIONS = [
   "Under 18",
   "18–29",
