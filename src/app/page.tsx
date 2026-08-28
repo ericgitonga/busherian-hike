@@ -2,6 +2,7 @@ import Link from "next/link";
 import PartnerStrip from "@/components/PartnerStrip";
 import RegistrationForm from "@/components/RegistrationForm";
 import SlotsRemaining from "@/components/SlotsRemaining";
+import SponsorStrip from "@/components/SponsorStrip";
 import { CAPACITY_CAP } from "@/lib/capacity";
 import { getSlotsRemaining } from "@/lib/registrations-store";
 
@@ -26,6 +27,7 @@ export default async function Home() {
         </header>
         <RegistrationForm />
         <PartnerStrip />
+        <SponsorStrip />
         <p className="mt-6 text-center text-xs text-zinc-500">
           <Link
             href="/privacy"
