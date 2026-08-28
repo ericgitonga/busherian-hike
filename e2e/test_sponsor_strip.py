@@ -13,9 +13,20 @@ def test_sponsor_strip_shows_confirmed_sponsors():
         page.goto("/")
         strip = page.get_by_test_id("sponsor-strip")
         strip.wait_for(state="visible")
-        text = strip.inner_text()
-        assert "Vecarian Plant" in text
-        assert "Eric Gitonga" in text
+        assert "Eric Gitonga" in strip.inner_text()
+
+
+def test_sponsor_strip_shows_vecarian_plant_logo_and_link():
+    with browser_page() as page:
+        page.goto("/")
+        strip = page.get_by_test_id("sponsor-strip")
+        strip.wait_for(state="visible")
+        # Vecarian Plant renders as a logo image (alt text), not visible text — unlike
+        # Eric Gitonga, which inner_text() catches directly.
+        logo = strip.get_by_alt_text("Vecarian Plant Limited")
+        logo.wait_for(state="visible")
+        link = strip.get_by_role("link", name="Vecarian Plant Limited")
+        assert link.get_attribute("href") == "https://vecarianplant.com/"
 
 
 def test_sponsor_strip_links_eric_gitonga_to_his_site():
@@ -42,6 +53,7 @@ def test_sponsor_strip_shows_green_table_logo_and_link():
 
 TESTS = [
     test_sponsor_strip_shows_confirmed_sponsors,
+    test_sponsor_strip_shows_vecarian_plant_logo_and_link,
     test_sponsor_strip_links_eric_gitonga_to_his_site,
     test_sponsor_strip_shows_green_table_logo_and_link,
 ]
