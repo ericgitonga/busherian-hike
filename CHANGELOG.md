@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.20.0] - 2026-08-28
+
+### Added
+
+- Vecarian Plant given the same treatment as Green Table: real wordmark logo
+  (`public/vecarian-plant-logo.png`, sourced from vecarianplant.com) and a link to
+  `https://vecarianplant.com/`, replacing the name-only entry. Renamed to their full registered
+  name, "Vecarian Plant Limited", found on their site (closes #59)
+
+tag: `v0.20.0`
+
 ## [0.19.0] - 2026-08-28
 
 ### Added
