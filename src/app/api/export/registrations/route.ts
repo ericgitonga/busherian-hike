@@ -21,7 +21,7 @@ const COLUMNS = [
   "next_of_kin_name",
   "next_of_kin_contact",
   "needs_bus",
-  "attending_after_party",
+  "ticket_type",
   "email",
   "paid",
   "paid_at",

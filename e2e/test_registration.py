@@ -35,6 +35,32 @@ def test_registration_golden_path():
         assert "Impala Club" in text
 
 
+def test_registration_socials_only_ticket_type():
+    with browser_page() as page:
+        page.goto("/")
+        page.get_by_test_id("field-name").fill("Wanjiru Kamau")
+        page.get_by_test_id("field-ageGroup").select_option("30–39")
+        page.get_by_test_id("field-school").select_option("AGHS")
+        page.get_by_test_id("field-yearLeft").fill("2010")
+        page.get_by_test_id("field-guestCount").fill("1")
+        page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
+        page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
+        page.get_by_test_id("ticket-type-socials_only").check()
+        page.get_by_test_id("submit-registration").click()
+
+        success = page.get_by_test_id("registration-success")
+        success.wait_for(state="visible")
+
+        inclusions = page.get_by_test_id("fee-inclusions")
+        inclusions.wait_for(state="visible")
+        text = inclusions.inner_text()
+        assert "Transport" not in text
+        assert "medal" not in text.lower()
+        assert "Pizza" in text
+        assert "gift hamper" in text
+        assert "Impala Club" in text
+
+
 def test_registration_requires_mandatory_fields():
     with browser_page() as page:
         page.goto("/")
@@ -46,7 +72,11 @@ def test_registration_requires_mandatory_fields():
         assert page.get_by_test_id("registration-success").count() == 0
 
 
-TESTS = [test_registration_golden_path, test_registration_requires_mandatory_fields]
+TESTS = [
+    test_registration_golden_path,
+    test_registration_socials_only_ticket_type,
+    test_registration_requires_mandatory_fields,
+]
 
 if __name__ == "__main__":
     for t in TESTS:

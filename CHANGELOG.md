@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.17.0] - 2026-08-28
+
+### Changed
+
+- Replaced the "attending after-party" checkbox with a two-way ticket-type choice — **Hike +
+  Socials** or **Socials only** — both flat KES 1,500 (`PER_HIKER_FEE_KES` unchanged, no
+  fee-tier logic needed since both cost the same). Superseded the previously-planned KES 2,000
+  after-party surcharge (#46, closed as superseded).
+- `db/schema.sql`'s `attending_after_party INTEGER` column replaced with `ticket_type TEXT`
+  (`hike_and_socials` / `socials_only`, `CHECK`-constrained). Applied as a one-time `ALTER TABLE`
+  directly against both the shared main database and the CI-only database (with the user's
+  explicit go-ahead, since `CREATE TABLE IF NOT EXISTS` can't retroactively alter an
+  already-provisioned table) — no real registration data existed yet to migrate.
+- Registration success screen's fee-inclusions list is now conditional on ticket type: "Hike +
+  Socials" keeps transport, park entry, a medal, and water/hydration, on top of what both tiers
+  get (hot showers, pizza courtesy of Green Table, a small gift hamper, and parking at Impala
+  Club); "Socials only" gets just the shared items (closes #53)
+
+tag: `v0.17.0`
+
 ## [0.16.0] - 2026-08-28
 
 ### Added

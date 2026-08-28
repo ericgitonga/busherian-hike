@@ -11,7 +11,7 @@ export async function insertRegistration(
     sql: `INSERT INTO registrations (
       id, name, age_group, school, year_left, guest_count,
       next_of_kin_name, next_of_kin_contact, needs_bus,
-      attending_after_party, email
+      ticket_type, email
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       id,
@@ -23,7 +23,7 @@ export async function insertRegistration(
       input.nextOfKinName,
       input.nextOfKinContact,
       input.needsBus ? 1 : 0,
-      input.attendingAfterParty ? 1 : 0,
+      input.ticketType,
       input.email || null,
     ],
   });
