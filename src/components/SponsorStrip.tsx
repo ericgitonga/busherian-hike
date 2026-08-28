@@ -13,7 +13,13 @@ export default function SponsorStrip() {
       <ul className="flex flex-wrap items-center justify-center gap-4">
         {SPONSORS.map((sponsor) => {
           const content = sponsor.logoSrc ? (
-            <Image src={sponsor.logoSrc} alt={sponsor.name} width={120} height={40} />
+            <Image
+              src={sponsor.logoSrc}
+              alt={sponsor.name}
+              width={160}
+              height={160}
+              className="h-10 w-auto object-contain"
+            />
           ) : (
             sponsor.name
           );

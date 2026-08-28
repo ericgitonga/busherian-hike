@@ -27,9 +27,23 @@ def test_sponsor_strip_links_eric_gitonga_to_his_site():
         assert link.get_attribute("href") == "https://eric-gitonga-links.vercel.app/"
 
 
+def test_sponsor_strip_shows_green_table_logo_and_link():
+    with browser_page() as page:
+        page.goto("/")
+        strip = page.get_by_test_id("sponsor-strip")
+        strip.wait_for(state="visible")
+        # Green Table renders as a logo image (alt text), not visible text — unlike the
+        # name-only sponsors, which inner_text() would catch directly.
+        logo = strip.get_by_alt_text("The Green Table")
+        logo.wait_for(state="visible")
+        link = strip.get_by_role("link", name="The Green Table")
+        assert link.get_attribute("href") == "https://www.thegreentablepizza.com/"
+
+
 TESTS = [
     test_sponsor_strip_shows_confirmed_sponsors,
     test_sponsor_strip_links_eric_gitonga_to_his_site,
+    test_sponsor_strip_shows_green_table_logo_and_link,
 ]
 
 if __name__ == "__main__":
