@@ -12,10 +12,12 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
 - Venue partner confirmed as Impala Club, Ngong Road, replacing the "Royal Nairobi Golf Club"
   placeholder — `PARTNERS` now points at the club's real crest (`public/impala-club-logo.png`),
-  and the home page states its role (pick-up, drop-off, after-party, parking) alongside the hike
-  date. `PartnerStrip`'s logo rendering switched from a fixed 120×40 box to a fixed-height,
-  aspect-preserving one (`h-10 w-auto object-contain`) so a square crest isn't stretched into a
-  wordmark-shaped box (closes #44)
+  links out to `https://www.impalaclub.co.ke/` (`PartnerStrip`/`Partner` gained the same
+  `linkHref` support `SponsorStrip`/`Sponsor` already had), and the home page states its role
+  (pick-up, drop-off, after-party, parking) alongside the hike date. `PartnerStrip`'s logo
+  rendering switched from a fixed 120×40 box to a fixed-height, aspect-preserving one (`h-10
+  w-auto object-contain`) so a square crest isn't stretched into a wordmark-shaped box (closes
+  #44)
 
 tag: `v0.14.0`
 
