@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.15.0] - 2026-08-28
+
+### Changed
+
+- Per-hiker fee confirmed at KES 1,500, replacing the KES 1,200 placeholder
+  (`PER_HIKER_FEE_KES` in `src/lib/payment.ts`) — the registration success screen picks it up
+  automatically since it already reads the constant directly. `PAYMENT_LINK_URL` in the same
+  file stays a dummy placeholder, unaffected, until #7 (blocked on a real IntaSend till)
+  unblocks (closes #45)
+
+tag: `v0.15.0`
+
 ## [0.14.0] - 2026-08-28
 
 ### Changed
