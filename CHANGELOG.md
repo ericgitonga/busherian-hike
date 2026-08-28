@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.14.0] - 2026-08-28
+
+### Changed
+
+- Venue partner confirmed as Impala Club, Ngong Road, replacing the "Royal Nairobi Golf Club"
+  placeholder — `PARTNERS` now points at the club's real crest (`public/impala-club-logo.png`),
+  links out to `https://www.impalaclub.co.ke/` (`PartnerStrip`/`Partner` gained the same
+  `linkHref` support `SponsorStrip`/`Sponsor` already had), and the home page states its role
+  (pick-up, drop-off, after-party, parking) alongside the hike date. `PartnerStrip`'s logo
+  rendering switched from a fixed 120×40 box to a fixed-height, aspect-preserving one (`h-10
+  w-auto object-contain`) so a square crest isn't stretched into a wordmark-shaped box (closes
+  #44)
+
+tag: `v0.14.0`
+
 ## [0.13.0] - 2026-08-28
 
 ### Added

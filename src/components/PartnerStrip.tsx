@@ -11,20 +11,31 @@ export default function PartnerStrip() {
         In partnership with
       </p>
       <ul className="flex flex-wrap items-center justify-center gap-4">
-        {PARTNERS.map((partner) => (
-          <li key={partner.name} className="text-sm font-semibold text-zinc-800">
-            {partner.logoSrc ? (
-              <Image
-                src={partner.logoSrc}
-                alt={partner.name}
-                width={120}
-                height={40}
-              />
-            ) : (
-              partner.name
-            )}
-          </li>
-        ))}
+        {PARTNERS.map((partner) => {
+          const content = partner.logoSrc ? (
+            <Image
+              src={partner.logoSrc}
+              alt={partner.name}
+              width={160}
+              height={160}
+              className="h-10 w-auto object-contain"
+            />
+          ) : (
+            partner.name
+          );
+
+          return (
+            <li key={partner.name} className="text-sm font-semibold text-zinc-800">
+              {partner.linkHref ? (
+                <a href={partner.linkHref} target="_blank" rel="noopener noreferrer">
+                  {content}
+                </a>
+              ) : (
+                content
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
