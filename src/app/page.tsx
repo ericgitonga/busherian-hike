@@ -23,6 +23,9 @@ export default async function Home() {
           <p className="mt-1 text-sm text-zinc-600">
             Ngong Hills, Main Gate to Kona Baridi — 19 September 2026
           </p>
+          <p data-testid="venue-info" className="mt-1 text-xs text-zinc-500">
+            Pick-up, drop-off, after-party, and parking at Impala Club, Ngong Road.
+          </p>
           <SlotsRemaining remaining={remaining} cap={CAPACITY_CAP} />
         </header>
         <RegistrationForm />

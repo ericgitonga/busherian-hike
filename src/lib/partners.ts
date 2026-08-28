@@ -1,6 +1,7 @@
 export type Partner = { name: string; logoSrc?: string };
 
-// PLACEHOLDER (extras/requirements.md) — real partner list pending from Luchiri. No logo image
-// exists yet, so PartnerStrip renders these as a text wordmark; set `logoSrc` here once one
-// does — this is the one place to edit.
-export const PARTNERS: Partner[] = [{ name: "Royal Nairobi Golf Club" }];
+// Confirmed (extras/requirements.md) — Impala Club, Ngong Road: pick-up, drop-off, after-party,
+// and parking. Logo is the club's own crest (see public/impala-club-logo.png).
+export const PARTNERS: Partner[] = [
+  { name: "Impala Club", logoSrc: "/impala-club-logo.png" },
+];

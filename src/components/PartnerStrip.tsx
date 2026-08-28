@@ -17,8 +17,9 @@ export default function PartnerStrip() {
               <Image
                 src={partner.logoSrc}
                 alt={partner.name}
-                width={120}
-                height={40}
+                width={160}
+                height={160}
+                className="h-10 w-auto object-contain"
               />
             ) : (
               partner.name
