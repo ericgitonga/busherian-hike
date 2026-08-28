@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.16.0] - 2026-08-28
+
+### Added
+
+- Fee-inclusions breakdown on the registration success screen (`RegistrationForm.tsx`): what the
+  KES 1,500 hiking fee covers — transport to Ngong Hills and back, park entry fees, hot showers,
+  a medal, water/hydration, and parking at Impala Club. Reads `PER_HIKER_FEE_KES` directly so it
+  stays in sync if the fee changes again (closes #48)
+
+tag: `v0.16.0`
+
 ## [0.15.0] - 2026-08-28
 
 ### Changed

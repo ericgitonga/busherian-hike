@@ -24,6 +24,16 @@ def test_registration_golden_path():
         assert "KES" in payment_link.inner_text()
         assert payment_link.get_attribute("href")
 
+        inclusions = page.get_by_test_id("fee-inclusions")
+        inclusions.wait_for(state="visible")
+        text = inclusions.inner_text()
+        assert "Transport" in text
+        assert "park" in text
+        assert "shower" in text
+        assert "medal" in text
+        assert "Water" in text or "hydration" in text
+        assert "Impala Club" in text
+
 
 def test_registration_requires_mandatory_fields():
     with browser_page() as page:

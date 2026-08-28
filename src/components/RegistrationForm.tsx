@@ -135,6 +135,17 @@ export default function RegistrationForm() {
         >
           Pay KES {PER_HIKER_FEE_KES}
         </a>
+        <div data-testid="fee-inclusions" className="mt-4 text-left text-xs text-green-800">
+          <p className="font-medium">Your KES {PER_HIKER_FEE_KES} hiking fee covers:</p>
+          <ul className="mt-1 list-inside list-disc">
+            <li>Transport to Ngong Hills and back</li>
+            <li>Entry fees to the park</li>
+            <li>Hot showers after the hike</li>
+            <li>A medal</li>
+            <li>Water / hydration</li>
+            <li>Parking at Impala Club</li>
+          </ul>
+        </div>
         <p className="mt-3 text-xs text-green-800">
           Confirmation details are coming soon — hold tight.
         </p>
