@@ -5,4 +5,9 @@ export type Sponsor = { name: string; logoSrc?: string; linkHref?: string };
 export const SPONSORS: Sponsor[] = [
   { name: "Vecarian Plant" },
   { name: "Eric Gitonga", linkHref: "https://eric-gitonga-links.vercel.app/" },
+  {
+    name: "The Green Table",
+    logoSrc: "/green-table-logo.png",
+    linkHref: "https://www.thegreentablepizza.com/",
+  },
 ];

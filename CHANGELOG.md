@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.19.0] - 2026-08-28
+
+### Added
+
+- Green Table (the pizza sponsor named in the organiser's own promotional copy) added to
+  `SPONSORS` with their real logo (`public/green-table-logo.png`, sourced from
+  `thegreentablepizza.com/logo.png`) and a link to `https://www.thegreentablepizza.com/`.
+- `SponsorStrip.tsx`'s logo rendering switched from a fixed 120×40 box to the same
+  fixed-height/auto-width, aspect-preserving one (`h-10 w-auto object-contain`) already used by
+  `PartnerStrip` (#44), since Green Table's badge-shaped logo would otherwise be squished
+  (closes #55)
+
+tag: `v0.19.0`
+
 ## [0.18.0] - 2026-08-28
 
 ### Changed
