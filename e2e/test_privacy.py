@@ -1,6 +1,6 @@
 """E2E coverage for the privacy notice and next-of-kin hint (issue #9)."""
 
-from _common import browser_page
+from _common import browser_page, run_tests
 
 
 def test_privacy_link_navigates_to_notice():
@@ -27,6 +27,4 @@ TESTS = [
 ]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

@@ -5,7 +5,7 @@ database (no dev/prod split, see SKILL.md), so the number of paid registrations 
 not predictable. Always derive the expectation from /api/capacity itself.
 """
 
-from _common import browser_page
+from _common import browser_page, run_tests
 
 
 def test_slots_remaining_matches_live_count():
@@ -23,6 +23,4 @@ def test_slots_remaining_matches_live_count():
 TESTS = [test_slots_remaining_matches_live_count]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

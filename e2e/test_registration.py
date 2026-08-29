@@ -1,6 +1,6 @@
 """E2E coverage for the registration form (issue #2)."""
 
-from _common import browser_page
+from _common import browser_page, run_tests
 
 
 def test_registration_golden_path():
@@ -79,6 +79,4 @@ TESTS = [
 ]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

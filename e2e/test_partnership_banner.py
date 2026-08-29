@@ -4,7 +4,7 @@ Fixed UI copy, not data-driven — safe to assert the literal banner text here, 
 registration counts which come from the live database.
 """
 
-from _common import browser_page
+from _common import browser_page, run_tests
 
 
 def test_partnership_banner_names_all_three_hosts():
@@ -23,6 +23,4 @@ TESTS = [
 ]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

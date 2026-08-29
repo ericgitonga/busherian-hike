@@ -4,7 +4,7 @@ Fixed UI copy, not data-driven — safe to assert the literal hero copy here, un
 counts which come from the live database.
 """
 
-from _common import browser_page
+from _common import browser_page, run_tests
 
 
 def test_hero_shows_event_name_and_hosts():
@@ -66,6 +66,4 @@ TESTS = [
 ]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

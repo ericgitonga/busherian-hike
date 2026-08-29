@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.26.1] - 2026-08-29
+
+### Fixed
+
+- `db:cleanup-test-data` now also runs from every `e2e/test_*.py` spec's own standalone
+  `if __name__ == "__main__":` runner (via a shared `e2e/_common.py` helper), not only from
+  `e2e/run.py`'s aggregate run — a lone spec run previously left `is_test_row=1` registrations
+  in the database uncleaned (closes #76).
+
+tag: `v0.26.1`
+
 ## [0.26.0] - 2026-08-29
 
 ### Added

@@ -15,12 +15,13 @@ can't be forgotten the way a separate manual/CI-only step could (issue #65).
 import importlib
 import os
 import pkgutil
-import subprocess
 import sys
 import traceback
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
+
+from _common import cleanup_test_data
 
 SKIP_MODULES = {m for m in os.environ.get("E2E_SKIP_MODULES", "").split(",") if m}
 
@@ -57,12 +58,7 @@ def main() -> int:
             else:
                 print(f"PASS {label}")
     finally:
-        cleanup = subprocess.run(
-            ["npm", "run", "db:cleanup-test-data"],
-            cwd=Path(__file__).parent.parent,
-        )
-        if cleanup.returncode != 0:
-            print("WARNING: db:cleanup-test-data failed — test rows may remain in the database.")
+        cleanup_test_data()
 
     print(f"\n{len(tests) - len(failures)}/{len(tests)} passed.")
     if failures:

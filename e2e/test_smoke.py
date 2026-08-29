@@ -1,6 +1,6 @@
 """Golden-path smoke checks. Extend with real specs as pages/flows are built."""
 
-from _common import BASE_URL, browser_page
+from _common import BASE_URL, browser_page, run_tests
 
 
 def test_homepage_loads():
@@ -19,6 +19,4 @@ def test_health_endpoint():
 TESTS = [test_homepage_loads, test_health_endpoint]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

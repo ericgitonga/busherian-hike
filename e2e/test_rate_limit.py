@@ -10,7 +10,7 @@ concurrent/rerun CI job against the same shared database (see issue #28).
 import re
 from pathlib import Path
 
-from _common import BASE_URL, browser_page, synthetic_client_id
+from _common import BASE_URL, browser_page, run_tests, synthetic_client_id
 
 ENV_LOCAL = Path(__file__).parent.parent / ".env.local"
 WRONG_PIN = "000000"
@@ -134,6 +134,4 @@ TESTS = [
 ]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

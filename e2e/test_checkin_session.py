@@ -8,7 +8,7 @@ body again until the session is cleared (explicitly via "Lock", or by expiring).
 import re
 from pathlib import Path
 
-from _common import BASE_URL, browser_page
+from _common import BASE_URL, browser_page, run_tests
 
 ENV_LOCAL = Path(__file__).parent.parent / ".env.local"
 
@@ -74,6 +74,4 @@ TESTS = [
 ]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

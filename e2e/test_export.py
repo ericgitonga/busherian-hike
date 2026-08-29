@@ -8,7 +8,7 @@ against the CSV header (which columns exist) instead, not the data.
 import re
 from pathlib import Path
 
-from _common import browser_page
+from _common import browser_page, run_tests
 
 ENV_LOCAL = Path(__file__).parent.parent / ".env.local"
 
@@ -46,6 +46,4 @@ def test_correct_pin_downloads_full_dataset_csv():
 TESTS = [test_wrong_pin_rejected, test_correct_pin_downloads_full_dataset_csv]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)
