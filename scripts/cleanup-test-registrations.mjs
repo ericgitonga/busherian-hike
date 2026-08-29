@@ -1,9 +1,11 @@
 import { createClient } from "@libsql/client";
 
-// e2e/test_registration.py's golden-path spec submits this exact fixture against the real,
-// shared Turso database (no dev/prod split — see SKILL.md) — every CI run on every PR would
-// otherwise leave a row behind that counts against the real capacity cap (issue #4). Run after
-// the e2e suite (see .github/workflows/e2e.yml) to remove it again.
+// e2e/test_registration.py's golden-path spec submits this exact fixture against whatever
+// database TURSO_DATABASE_URL points to — CI's own dedicated database (issue #28), or, for a
+// local run, the real shared Development/Preview/Production database (no dev/prod split for the
+// app itself — see SKILL.md). Either way a leftover row would count against the real capacity
+// cap (issue #4). e2e/run.py's main() always runs this after the suite, pass or fail (issue #65)
+// — no separate invocation needed.
 const TEST_NAME = "Wanjiru Kamau";
 const TEST_NEXT_OF_KIN_NAME = "Kamau Njoroge";
 const TEST_NEXT_OF_KIN_CONTACT = "0712345678";

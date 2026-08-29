@@ -95,15 +95,9 @@ jobs:
           playwright install --with-deps chromium
 
       - name: Run E2E suite
+        # e2e/run.py itself always runs db:cleanup-test-data after the suite, pass or fail
+        # (issue #65) — no separate cleanup step needed here.
         run: python e2e/run.py
-
-      - name: Clean up test registrations
-        # test_registration.py's golden path (and test_rate_limit.py's throttle spec) submit
-        # real rows to the CI-only Turso database — always remove them, even if the suite itself
-        # failed above. Cheap and self-contained now that this is CI's own database, not
-        # production, but still good hygiene: an unbounded CI database is still a database.
-        if: always()
-        run: npm run db:cleanup-test-data
 
       - name: Print server log
         if: always()
