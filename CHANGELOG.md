@@ -10,10 +10,13 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
 ### Added
 
-- Kayjah Design Studio (https://kayjah.com/) added to the partner strip alongside Impala Club —
-  logo (`public/kayjah-design-studio-logo.png`, cropped to its actual content — the original
+- Kayjah Design Studio (https://kayjah.com/) added to the "With thanks to" sponsor strip — logo
+  (`public/kayjah-design-studio-logo.png`, cropped to its actual content first — the original
   carried ~25% transparent vertical padding, the same issue found and fixed for
-  `green-table-logo.png` in #63) + link, no additional venue-role copy (closes #68)
+  `green-table-logo.png` in #63) + link. Takes the row-1 slot Eric Gitonga previously held
+  (near-identical logo aspect ratio); Eric Gitonga moves to its own row 2, centred under Green
+  Table — the sponsor strip is now a 3-column grid rather than a wrapping flex row, since only an
+  explicit `col-start` can express "centred under the item above" (closes #68)
 
 ## [0.23.0] - 2026-08-29
 

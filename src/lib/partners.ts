@@ -8,9 +8,4 @@ export const PARTNERS: Partner[] = [
     logoSrc: "/impala-club-logo.png",
     linkHref: "https://www.impalaclub.co.ke/",
   },
-  {
-    name: "Kayjah Design Studio",
-    logoSrc: "/kayjah-design-studio-logo.png",
-    linkHref: "https://kayjah.com/",
-  },
 ];

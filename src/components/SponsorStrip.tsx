@@ -10,7 +10,7 @@ export default function SponsorStrip() {
       <p className="text-xs font-medium tracking-wide text-zinc-500 uppercase">
         With thanks to
       </p>
-      <ul className="flex flex-wrap items-center justify-center gap-4">
+      <ul className="grid grid-cols-3 items-center justify-items-center gap-4">
         {SPONSORS.map((sponsor) => {
           const content = sponsor.logoSrc ? (
             <Image
@@ -25,7 +25,10 @@ export default function SponsorStrip() {
           );
 
           return (
-            <li key={sponsor.name} className="text-sm font-semibold text-zinc-800">
+            <li
+              key={sponsor.name}
+              className={`text-sm font-semibold text-zinc-800 ${sponsor.gridColStart ?? ""}`}
+            >
               {sponsor.linkHref ? (
                 <a
                   href={sponsor.linkHref}
