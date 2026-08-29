@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.24.0] - 2026-08-29
+
+### Added
+
+- Kayjah Design Studio (https://kayjah.com/) added to the partner strip alongside Impala Club —
+  logo (`public/kayjah-design-studio-logo.png`, cropped to its actual content — the original
+  carried ~25% transparent vertical padding, the same issue found and fixed for
+  `green-table-logo.png` in #63) + link, no additional venue-role copy (closes #68)
+
 ## [0.23.0] - 2026-08-29
 
 ### Added

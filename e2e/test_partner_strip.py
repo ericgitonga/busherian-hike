@@ -23,8 +23,19 @@ def test_partner_strip_links_impala_club_to_its_site():
         page.goto("/")
         strip = page.get_by_test_id("partner-strip")
         strip.wait_for(state="visible")
-        link = strip.get_by_role("link")
+        link = strip.get_by_role("link", name="Impala Club")
         assert link.get_attribute("href") == "https://www.impalaclub.co.ke/"
+
+
+def test_partner_strip_shows_kayjah_design_studio_logo_and_link():
+    with browser_page() as page:
+        page.goto("/")
+        strip = page.get_by_test_id("partner-strip")
+        strip.wait_for(state="visible")
+        logo = strip.get_by_alt_text("Kayjah Design Studio")
+        logo.wait_for(state="visible")
+        link = strip.get_by_role("link", name="Kayjah Design Studio")
+        assert link.get_attribute("href") == "https://kayjah.com/"
 
 
 def test_venue_info_states_impala_clubs_role():
@@ -43,6 +54,7 @@ def test_venue_info_states_impala_clubs_role():
 TESTS = [
     test_partner_strip_shows_impala_club,
     test_partner_strip_links_impala_club_to_its_site,
+    test_partner_strip_shows_kayjah_design_studio_logo_and_link,
     test_venue_info_states_impala_clubs_role,
 ]
 
