@@ -1,6 +1,6 @@
 import Link from "next/link";
 import LandingHero from "@/components/LandingHero";
-import PartnerStrip from "@/components/PartnerStrip";
+import PartnershipBanner from "@/components/PartnershipBanner";
 import RegistrationForm from "@/components/RegistrationForm";
 import SponsorStrip from "@/components/SponsorStrip";
 import { getSlotsRemaining } from "@/lib/registrations-store";
@@ -20,7 +20,7 @@ export default async function Home() {
       <main className="w-full max-w-lg">
         <LandingHero remaining={remaining} />
         <RegistrationForm isTestEnvironment={isTestEnvironment} />
-        <PartnerStrip />
+        <PartnershipBanner />
         <SponsorStrip />
         <p className="mt-6 text-center text-xs text-zinc-500">
           <Link
