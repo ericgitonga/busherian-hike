@@ -6,7 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
-## [0.25.1] - 2026-08-29
+## [0.26.0] - 2026-08-29
 
 ### Changed
 
@@ -14,8 +14,13 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
   event, in partnership with Jointea, and Socials FRFR!" (closes #72) — makes clear ACR and
   Socials FRFR are the hosting entities and Jointea is a partner, rather than grouping all three
   names together.
+- Moved Impala Club's credit from the "In partnership with" strip to the "With thanks to" strip,
+  alongside the other confirmed sponsors, flanking Eric Gitonga in row 2 (closes #74).
+- Removed the now-empty "In partnership with" strip (`PartnerStrip`/`PARTNERS`) and replaced its
+  slot with the reworded partnership line above, now shown prominently instead of as a small
+  italic closing tagline (closes #74).
 
-tag: `v0.25.1`
+tag: `v0.26.0`
 
 ## [0.25.0] - 2026-08-29
 

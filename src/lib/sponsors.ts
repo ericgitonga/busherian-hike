@@ -10,13 +10,15 @@ export type Sponsor = {
   gridColStart?: string;
 };
 
-// Only confirmed sponsors go here (issue #47) — unlike PARTNERS, this list has no placeholder
-// entry to swap; it grows one confirmed name at a time as each contribution actually locks in.
+// Only confirmed sponsors go here (issue #47) — no placeholder entry to swap; it grows one
+// confirmed name at a time as each contribution actually locks in.
 // Order and per-logo size are a deliberate visual call, not derived from confirmation date —
 // Green Table centred and enlarged in row 1; Vecarian Plant and Kayjah flank it, both reduced to
 // balance it (issue #68 — Kayjah took the row-1 slot Eric Gitonga previously held, near-identical
-// logo aspect ratio, ~4.7:1 either way); Eric Gitonga moved to its own row 2, centred under Green
-// Table via gridColStart.
+// logo aspect ratio, ~4.7:1 either way). Row 2 pairs Eric Gitonga and Impala Club (moved here
+// from the now-removed partner strip, issue #74) flanking the empty centre column via explicit
+// col-start-1/3 — same left/right-needs-explicit-placement reasoning as en-mascaradores' mascot
+// grid, since only a full row of three can rely on auto-placement.
 export const SPONSORS: Sponsor[] = [
   {
     name: "Vecarian Plant Limited",
@@ -41,6 +43,12 @@ export const SPONSORS: Sponsor[] = [
     logoSrc: "/eric-gitonga-logo.png",
     linkHref: "https://eric-gitonga-links.vercel.app/",
     logoHeightClass: "h-9",
-    gridColStart: "col-start-2",
+    gridColStart: "col-start-1",
+  },
+  {
+    name: "Impala Club",
+    logoSrc: "/impala-club-logo.png",
+    linkHref: "https://www.impalaclub.co.ke/",
+    gridColStart: "col-start-3",
   },
 ];

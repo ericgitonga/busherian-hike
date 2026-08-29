@@ -45,19 +45,24 @@ def test_hero_pricing_shows_both_ticket_types_at_same_price():
         assert "medal" not in socials_text.lower()
 
 
-def test_hero_closing_tagline():
+def test_venue_info_states_impala_clubs_role():
     with browser_page() as page:
         page.goto("/")
-        tagline = page.get_by_test_id("hero-closing-tagline")
-        tagline.wait_for(state="visible")
-        assert "FRFR" in tagline.inner_text()
+        info = page.get_by_test_id("venue-info")
+        info.wait_for(state="visible")
+        text = info.inner_text()
+        assert "Impala Club" in text
+        assert "Pick-up" in text
+        assert "drop-off" in text
+        assert "after-party" in text
+        assert "parking" in text
 
 
 TESTS = [
     test_hero_shows_event_name_and_hosts,
     test_hero_highlights_mention_mbuzi_and_dj,
     test_hero_pricing_shows_both_ticket_types_at_same_price,
-    test_hero_closing_tagline,
+    test_venue_info_states_impala_clubs_role,
 ]
 
 if __name__ == "__main__":
