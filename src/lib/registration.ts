@@ -37,7 +37,7 @@ export const AGE_GROUP_OPTIONS = [
   "60+",
 ] as const;
 
-const KENYAN_PHONE_REGEX = /^(?:\+254|0)[17]\d{8}$/;
+export const KENYAN_PHONE_REGEX = /^(?:\+254|0)[17]\d{8}$/;
 
 const currentYear = new Date().getUTCFullYear();
 

@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.25.0] - 2026-08-29
+
+### Changed
+
+- Payment is now direct M-Pesa P2P instead of an IntaSend Payment Link/webhook (closes #70,
+  supersedes #6/#7/#35) — no till, no business registration, nothing to receive a webhook from.
+  The registration success screen shows a placeholder M-Pesa recipient (phone + name, pending
+  the real one from Luchiri) and asks the hiker to submit their M-Pesa transaction code plus the
+  phone number they paid from — same alphanumeric-code pattern as career-transition/intake's
+  `mpesa_code` handling. Both values are stored on the registration row (`mpesa_code`,
+  `payer_phone` — new columns, applied directly to both the shared and CI databases) and included
+  in the organiser CSV export; the already-built WhatsApp/SMS/email confirmation pipeline
+  (`confirmation.ts`) now fires on that submission instead of a webhook that was never built.
+  Marking a registration `paid` stays a manual, outside-the-app step for now.
+
 ## [0.24.0] - 2026-08-29
 
 ### Added

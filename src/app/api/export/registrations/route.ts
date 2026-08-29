@@ -28,6 +28,8 @@ const COLUMNS = [
   "checked_in",
   "checked_in_at",
   "is_test_row",
+  "mpesa_code",
+  "payer_phone",
   "created_at",
 ];
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { registerHiker } from "@/app/actions";
+import { registerHiker, submitMpesaPayment } from "@/app/actions";
 import {
   AGE_GROUP_OPTIONS,
   HIKE_ONLY_INCLUSIONS,
@@ -11,7 +11,10 @@ import {
   TICKET_TYPE_OPTIONS,
   type RegistrationFieldErrors,
 } from "@/lib/registration";
-import { PAYMENT_LINK_URL, PER_HIKER_FEE_KES } from "@/lib/payment";
+import type { MpesaPaymentFieldErrors } from "@/lib/mpesa-payment";
+import { MPESA_RECIPIENT_NAME, MPESA_RECIPIENT_PHONE, PER_HIKER_FEE_KES } from "@/lib/payment";
+
+const initialMpesaValues = { payerPhone: "", mpesaCode: "" };
 
 const initialValues = {
   name: "",
@@ -65,9 +68,24 @@ export default function RegistrationForm({
   const [submitted, setSubmitted] = useState(false);
   const [full, setFull] = useState(false);
   const [rateLimited, setRateLimited] = useState(false);
+  const [registrationId, setRegistrationId] = useState<string | null>(null);
+
+  const [mpesaValues, setMpesaValues] = useState(initialMpesaValues);
+  const [mpesaErrors, setMpesaErrors] = useState<MpesaPaymentFieldErrors>({});
+  const [mpesaSubmitting, setMpesaSubmitting] = useState(false);
+  const [mpesaSubmitted, setMpesaSubmitted] = useState(false);
+  const [mpesaRateLimited, setMpesaRateLimited] = useState(false);
+  const [mpesaGenericError, setMpesaGenericError] = useState(false);
 
   function update<K extends FieldName>(field: K, value: (typeof initialValues)[K]) {
     setValues((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function updateMpesa<K extends keyof typeof initialMpesaValues>(
+    field: K,
+    value: (typeof initialMpesaValues)[K],
+  ) {
+    setMpesaValues((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -95,7 +113,38 @@ export default function RegistrationForm({
       return;
     }
 
+    setRegistrationId(result.id);
     setSubmitted(true);
+  }
+
+  async function handleMpesaSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!registrationId) return;
+
+    setMpesaSubmitting(true);
+    setMpesaErrors({});
+    setMpesaGenericError(false);
+
+    const result = await submitMpesaPayment({
+      registrationId,
+      payerPhone: mpesaValues.payerPhone,
+      mpesaCode: mpesaValues.mpesaCode,
+    });
+
+    setMpesaSubmitting(false);
+
+    if (!result.success) {
+      if (result.reason === "rate_limited") {
+        setMpesaRateLimited(true);
+      } else if (result.reason === "validation") {
+        setMpesaErrors(result.errors);
+      } else {
+        setMpesaGenericError(true);
+      }
+      return;
+    }
+
+    setMpesaSubmitted(true);
   }
 
   if (full) {
@@ -132,17 +181,9 @@ export default function RegistrationForm({
       >
         <p className="font-semibold">You&apos;re registered!</p>
         <p className="mt-1 text-sm">
-          Pay KES {PER_HIKER_FEE_KES} via IntaSend to confirm your spot.
+          Send KES {PER_HIKER_FEE_KES} via M-Pesa to {MPESA_RECIPIENT_PHONE} (
+          {MPESA_RECIPIENT_NAME}) to confirm your spot.
         </p>
-        <a
-          data-testid="payment-link"
-          href={PAYMENT_LINK_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-block rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838]"
-        >
-          Pay KES {PER_HIKER_FEE_KES}
-        </a>
         <div data-testid="fee-inclusions" className="mt-4 text-left text-xs text-green-800">
           <p className="font-medium">Your KES {PER_HIKER_FEE_KES} covers:</p>
           <ul className="mt-1 list-inside list-disc">
@@ -153,9 +194,64 @@ export default function RegistrationForm({
             ))}
           </ul>
         </div>
-        <p className="mt-3 text-xs text-green-800">
-          Confirmation details are coming soon — hold tight.
-        </p>
+
+        {mpesaSubmitted ? (
+          <p data-testid="mpesa-payment-recorded" className="mt-4 text-sm font-medium">
+            Payment details recorded — thank you! We&apos;ll send your confirmation and QR code
+            to the number above shortly.
+          </p>
+        ) : (
+          <form
+            data-testid="mpesa-payment-form"
+            onSubmit={handleMpesaSubmit}
+            className="mt-4 flex flex-col gap-3 text-left"
+            noValidate
+          >
+            <p className="text-xs font-medium text-green-900">
+              Already sent it? Enter the number you paid from and the M-Pesa transaction code
+              from the confirmation SMS.
+            </p>
+            <Field label="Your M-Pesa phone number" error={mpesaErrors.payerPhone}>
+              <input
+                data-testid="field-payerPhone"
+                className={inputClass}
+                placeholder="0712345678"
+                value={mpesaValues.payerPhone}
+                onChange={(e) => updateMpesa("payerPhone", e.target.value)}
+              />
+            </Field>
+            <Field label="M-Pesa transaction code" error={mpesaErrors.mpesaCode}>
+              <input
+                data-testid="field-mpesaCode"
+                className={inputClass}
+                value={mpesaValues.mpesaCode}
+                onChange={(e) => updateMpesa("mpesaCode", e.target.value)}
+              />
+            </Field>
+            {mpesaRateLimited && (
+              <p
+                data-testid="mpesa-rate-limited"
+                className="text-xs font-normal text-red-600"
+                role="alert"
+              >
+                Too many attempts. Please wait a bit and try again.
+              </p>
+            )}
+            {mpesaGenericError && (
+              <p className="text-xs font-normal text-red-600" role="alert">
+                Something went wrong — please try again, or contact the organiser directly.
+              </p>
+            )}
+            <button
+              data-testid="submit-mpesa-payment"
+              type="submit"
+              disabled={mpesaSubmitting}
+              className="rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50"
+            >
+              {mpesaSubmitting ? "Submitting…" : "Submit payment proof"}
+            </button>
+          </form>
+        )}
       </div>
     );
   }

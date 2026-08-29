@@ -77,3 +77,6 @@ export async function recordAuthFailure(
 // finding M1: "5 submissions/hour").
 export const PIN_AUTH_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 900 };
 export const REGISTRATION_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 3600 };
+// Same shape as REGISTRATION_RATE_LIMIT — a public write endpoint with no notion of
+// success/failure worth exempting (issue #70).
+export const MPESA_SUBMIT_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 3600 };

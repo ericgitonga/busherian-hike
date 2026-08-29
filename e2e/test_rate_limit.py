@@ -1,4 +1,5 @@
-"""E2E coverage for rate limiting on PIN-gated routes and public registration (issue #26).
+"""E2E coverage for rate limiting on PIN-gated routes, public registration (issue #26), and
+M-Pesa payment-proof submission (issue #70).
 
 Each test below runs in its own `browser_page()` session, which _common.py already gives a
 fresh synthetic X-Forwarded-For identity — so these tests never collide with each other, with
@@ -85,10 +86,51 @@ def test_registration_throttled_after_repeated_submissions():
         assert last_state == "rate_limited", "expected the 6th submission within the window to be throttled"
 
 
+def test_mpesa_submit_throttled_after_repeated_submissions():
+    # Each iteration needs its own fresh, first-time registration to submit mpesa payment
+    # proof against (recordMpesaPayment's idempotency guard would otherwise make submissions
+    # 2-6 no-ops on the *data* side, though they'd still count against the rate limit). But
+    # registration has its own 5/hour limit — reusing one identity for both calls would trip
+    # *that* limit first and never reach the mpesa-submit limit this test is actually after. So
+    # each registration gets its own throwaway identity, while every mpesa-submit call
+    # deliberately shares one fixed identity — that's the bucket being driven to its limit.
+    with browser_page() as page:
+        mpesa_submit_ip = synthetic_client_id()
+        last_state = None
+        for i in range(6):
+            page.set_extra_http_headers({"x-forwarded-for": synthetic_client_id()})
+            page.goto("/")
+            for test_id, value in REGISTRATION_FIXTURE.items():
+                page.get_by_test_id(test_id).fill(value)
+            page.get_by_test_id("field-ageGroup").select_option("30–39")
+            page.get_by_test_id("field-school").select_option("AGHS")
+            page.get_by_test_id("field-isTestRow").check()
+            page.get_by_test_id("submit-registration").click()
+            page.get_by_test_id("registration-success").wait_for(state="visible")
+
+            page.set_extra_http_headers({"x-forwarded-for": mpesa_submit_ip})
+            page.get_by_test_id("field-payerPhone").fill("0712345678")
+            page.get_by_test_id("field-mpesaCode").fill(f"SFH3XXXXX{i}")
+            page.get_by_test_id("submit-mpesa-payment").click()
+
+            page.wait_for_selector(
+                '[data-testid="mpesa-payment-recorded"], [data-testid="mpesa-rate-limited"]',
+                state="visible",
+            )
+            last_state = (
+                "rate_limited"
+                if page.get_by_test_id("mpesa-rate-limited").count()
+                else "success"
+            )
+
+        assert last_state == "rate_limited", "expected the 6th submission within the window to be throttled"
+
+
 TESTS = [
     test_checkin_verify_pin_locks_out_after_repeated_wrong_attempts,
     test_checkin_verify_pin_never_throttles_correct_attempts,
     test_registration_throttled_after_repeated_submissions,
+    test_mpesa_submit_throttled_after_repeated_submissions,
 ]
 
 if __name__ == "__main__":
