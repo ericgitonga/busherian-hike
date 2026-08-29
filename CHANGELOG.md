@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.23.0] - 2026-08-29
+
+### Added
+
+- `registrations.is_test_row` column and a matching "this is a test registration" checkbox on
+  `RegistrationForm`, shown only outside production (`VERCEL_ENV !== "production"`) — lets a
+  manual check against a PR's live Preview mark its own submission for cleanup, the same way the
+  automated e2e suite already does. `npm run db:cleanup-test-data` now deletes every
+  `is_test_row = 1` row instead of matching one hardcoded fixture, so it catches ad-hoc manual
+  test submissions too, while leaving every genuine row untouched (closes #66)
+
+## [0.22.1] - 2026-08-29
+
+### Fixed
+
+- `e2e/run.py`'s `main()` now always runs `npm run db:cleanup-test-data` after the suite finishes,
+  pass or fail — previously this only happened as a CI-only `if: always()` workflow step, so a
+  local e2e run (required by SKILL.md's quality checklist) against the real shared
+  Development/Preview/Production database left its test fixture rows behind unless cleaned up by
+  hand. Found after 14 leftover "Wanjiru Kamau" rows accumulated in production (closes #65)
+
 ## [0.22.0] - 2026-08-29
 
 ### Added

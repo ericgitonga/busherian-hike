@@ -13,6 +13,7 @@ def test_registration_golden_path():
         page.get_by_test_id("field-guestCount").fill("1")
         page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
         page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
+        page.get_by_test_id("field-isTestRow").check()
         page.get_by_test_id("submit-registration").click()
 
         success = page.get_by_test_id("registration-success")
@@ -46,6 +47,7 @@ def test_registration_socials_only_ticket_type():
         page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
         page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
         page.get_by_test_id("ticket-type-socials_only").check()
+        page.get_by_test_id("field-isTestRow").check()
         page.get_by_test_id("submit-registration").click()
 
         success = page.get_by_test_id("registration-success")

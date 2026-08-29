@@ -24,6 +24,7 @@ const initialValues = {
   needsBus: false,
   ticketType: "hike_and_socials" as (typeof TICKET_TYPE_OPTIONS)[number]["value"],
   email: "",
+  isTestRow: false,
 };
 
 type FieldName = keyof typeof initialValues;
@@ -53,7 +54,11 @@ function Field({
 const inputClass =
   "rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900 focus:border-zinc-500 focus:outline-none";
 
-export default function RegistrationForm() {
+export default function RegistrationForm({
+  isTestEnvironment,
+}: {
+  isTestEnvironment: boolean;
+}) {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<RegistrationFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -288,6 +293,18 @@ export default function RegistrationForm() {
           onChange={(e) => update("email", e.target.value)}
         />
       </Field>
+
+      {isTestEnvironment && (
+        <label className="flex items-center gap-2 text-sm font-medium text-amber-700">
+          <input
+            data-testid="field-isTestRow"
+            type="checkbox"
+            checked={values.isTestRow}
+            onChange={(e) => update("isTestRow", e.target.checked)}
+          />
+          This is a test registration (auto-removed by cleanup, not a real signup)
+        </label>
+      )}
 
       <button
         data-testid="submit-registration"
