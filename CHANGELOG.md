@@ -22,6 +22,12 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
   rendered visibly smaller than Vecarian Plant's and Eric Gitonga's edge-to-edge logos (closes
   #63)
 
+### Changed
+
+- Sponsor-strip logo sizing/order rebalanced: Vecarian Plant and Eric Gitonga reduced 10%
+  (`h-10` → `h-9`), The Green Table enlarged 10% (`h-10` → `h-11`) and moved to the centre
+  position (closes #63)
+
 tag: `v0.22.0`
 
 ## [0.21.0] - 2026-08-28

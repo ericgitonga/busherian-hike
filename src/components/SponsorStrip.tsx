@@ -18,7 +18,7 @@ export default function SponsorStrip() {
               alt={sponsor.name}
               width={160}
               height={160}
-              className="h-10 w-auto object-contain"
+              className={`${sponsor.logoHeightClass ?? "h-10"} w-auto object-contain`}
             />
           ) : (
             sponsor.name
