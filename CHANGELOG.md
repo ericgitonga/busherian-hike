@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.25.1] - 2026-08-29
+
+### Changed
+
+- Reworded the hero closing tagline from "An ACR, Jointea and Socials FRFR event!" to "An ACR
+  event, in partnership with Jointea, and Socials FRFR!" (closes #72) — makes clear ACR and
+  Socials FRFR are the hosting entities and Jointea is a partner, rather than grouping all three
+  names together.
+
+tag: `v0.25.1`
+
 ## [0.25.0] - 2026-08-29
 
 ### Changed

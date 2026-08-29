@@ -69,7 +69,7 @@ export default function LandingHero({ remaining }: { remaining: number }) {
       <SlotsRemaining remaining={remaining} cap={CAPACITY_CAP} />
 
       <p data-testid="hero-closing-tagline" className="mt-4 text-xs text-zinc-500 italic">
-        An ACR, Jointea and Socials FRFR event!
+        An ACR event, in partnership with Jointea, and Socials FRFR!
       </p>
     </header>
   );
