@@ -5,7 +5,7 @@ MPESA_RECIPIENT_PHONE/NAME (src/lib/payment.ts) are fixed UI copy, not data-driv
 partner/sponsor strips, safe to assert the literal placeholder values here.
 """
 
-from _common import browser_page
+from _common import browser_page, run_tests
 
 REGISTRATION_FIXTURE = {
     "field-name": "Wanjiru Kamau",
@@ -81,6 +81,4 @@ TESTS = [
 ]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

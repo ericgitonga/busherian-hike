@@ -6,7 +6,7 @@ since SPONSORS only grows one confirmed entry at a time, not a live dataset. All
 sponsors render as logo images (alt text), not visible text.
 """
 
-from _common import browser_page
+from _common import browser_page, run_tests
 
 
 def test_sponsor_strip_shows_eric_gitonga_logo_and_link():
@@ -87,6 +87,4 @@ TESTS = [
 ]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)

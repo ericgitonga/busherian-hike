@@ -8,7 +8,7 @@ verified manually instead (see the PR's test plan).
 import re
 from pathlib import Path
 
-from _common import browser_page
+from _common import browser_page, run_tests
 
 ENV_LOCAL = Path(__file__).parent.parent / ".env.local"
 
@@ -44,6 +44,4 @@ def test_correct_pin_unlocks_checkin():
 TESTS = [test_wrong_pin_rejected, test_correct_pin_unlocks_checkin]
 
 if __name__ == "__main__":
-    for t in TESTS:
-        t()
-        print(f"PASS {t.__name__}")
+    run_tests(TESTS)
