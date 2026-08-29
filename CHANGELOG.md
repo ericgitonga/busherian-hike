@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.22.0] - 2026-08-29
+
+### Added
+
+- Eric Gitonga given the same treatment as Vecarian Plant and The Green Table: a real logo
+  (`public/eric-gitonga-logo.png` — a dark card matching the `eric-gitonga-links` dark theme,
+  reading "/Eric Gitonga" in an orange slash and cream Fraunces wordmark), replacing the
+  name-only entry (closes #63)
+
+tag: `v0.22.0`
+
 ## [0.21.0] - 2026-08-28
 
 ### Added

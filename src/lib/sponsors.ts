@@ -8,7 +8,11 @@ export const SPONSORS: Sponsor[] = [
     logoSrc: "/vecarian-plant-logo.png",
     linkHref: "https://vecarianplant.com/",
   },
-  { name: "Eric Gitonga", linkHref: "https://eric-gitonga-links.vercel.app/" },
+  {
+    name: "Eric Gitonga",
+    logoSrc: "/eric-gitonga-logo.png",
+    linkHref: "https://eric-gitonga-links.vercel.app/",
+  },
   {
     name: "The Green Table",
     logoSrc: "/green-table-logo.png",
