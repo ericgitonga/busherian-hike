@@ -15,6 +15,13 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
   reading "/Eric Gitonga" in an orange slash and cream Fraunces wordmark), replacing the
   name-only entry (closes #63)
 
+### Fixed
+
+- `public/green-table-logo.png` cropped to its actual content — the original PNG carried ~25%
+  transparent padding baked into its canvas, so at the sponsor strip's shared `h-10` height it
+  rendered visibly smaller than Vecarian Plant's and Eric Gitonga's edge-to-edge logos (closes
+  #63)
+
 tag: `v0.22.0`
 
 ## [0.21.0] - 2026-08-28
