@@ -11,12 +11,15 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const remaining = await getSlotsRemaining();
+  // VERCEL_ENV is unset outside Vercel (local dev, CI) — treated as non-production too, so the
+  // toggle is available everywhere real hikers aren't (issue #66).
+  const isTestEnvironment = process.env.VERCEL_ENV !== "production";
 
   return (
     <div className="flex flex-1 flex-col items-center bg-white px-4 py-12">
       <main className="w-full max-w-lg">
         <LandingHero remaining={remaining} />
-        <RegistrationForm />
+        <RegistrationForm isTestEnvironment={isTestEnvironment} />
         <PartnerStrip />
         <SponsorStrip />
         <p className="mt-6 text-center text-xs text-zinc-500">

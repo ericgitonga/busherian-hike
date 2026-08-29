@@ -71,6 +71,11 @@ export const registrationSchema = z.object({
   email: z
     .union([z.literal(""), z.email("Enter a valid email address")])
     .optional(),
+  // Only ever settable from the UI when RegistrationForm's isTestEnvironment prop is true (see
+  // src/app/page.tsx) — real production submissions always default to false. Lets
+  // scripts/cleanup-test-registrations.mjs remove marked rows without touching genuine ones
+  // (issue #66).
+  isTestRow: z.boolean().optional().default(false),
 });
 
 export type RegistrationInput = z.infer<typeof registrationSchema>;

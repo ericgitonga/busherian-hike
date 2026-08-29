@@ -27,6 +27,7 @@ const COLUMNS = [
   "paid_at",
   "checked_in",
   "checked_in_at",
+  "is_test_row",
   "created_at",
 ];
 
