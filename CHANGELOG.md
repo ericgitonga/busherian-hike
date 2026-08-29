@@ -8,6 +8,12 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
 ## [0.26.0] - 2026-08-29
 
+### Added
+
+- ZBOM (Kitchen Cabinets · Wardrobes) added to the "With thanks to" sponsor strip, directly below
+  Kayjah Design Studio — logo only for now, rendered as a plain non-clickable entry since ZBOM
+  hasn't confirmed a link yet (closes #75).
+
 ### Changed
 
 - Reworded the hero closing tagline from "An ACR, Jointea and Socials FRFR event!" to "An ACR
@@ -19,6 +25,8 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 - Removed the now-empty "In partnership with" strip (`PartnerStrip`/`PARTNERS`) and replaced its
   slot with the reworded partnership line above, now shown prominently instead of as a small
   italic closing tagline (closes #74).
+- The partnership line now renders in a cursive/script font (Dancing Script) instead of the
+  hero's default sans-serif (closes #75).
 
 tag: `v0.26.0`
 
