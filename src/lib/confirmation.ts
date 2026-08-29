@@ -17,10 +17,10 @@ export type ConfirmationResult = {
   emailSent: boolean;
 };
 
-// Called by the payment webhook (issue #7, not built yet) once it has the payer's phone number
-// from IntaSend's webhook payload — that number doesn't exist anywhere in this app until then
-// (the registration form itself never collects it, per the brief), so it's a required
-// parameter here rather than something this function looks up itself.
+// Called by submitMpesaPayment (src/app/actions.ts) once the hiker submits their M-Pesa
+// transaction code — payment is direct M-Pesa P2P now, not an IntaSend webhook (issue #70,
+// superseding #7), so the phone number is whatever they typed in as their own payer number at
+// that point, not something this function looks up itself.
 export async function sendConfirmation(
   input: ConfirmationInput,
 ): Promise<ConfirmationResult> {

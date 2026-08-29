@@ -20,10 +20,8 @@ def test_registration_golden_path():
         success.wait_for(state="visible")
         assert "registered" in success.inner_text().lower()
 
-        payment_link = page.get_by_test_id("payment-link")
-        payment_link.wait_for(state="visible")
-        assert "KES" in payment_link.inner_text()
-        assert payment_link.get_attribute("href")
+        assert "KES" in success.inner_text()
+        assert "M-Pesa" in success.inner_text()
 
         inclusions = page.get_by_test_id("fee-inclusions")
         inclusions.wait_for(state="visible")

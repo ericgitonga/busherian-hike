@@ -1,6 +1,6 @@
 # busherian-hike
 
-Registration, IntaSend/M-Pesa payment, and QR check-in for the AHS/AGHS alumni Ngong Hills hike
+Registration, direct M-Pesa payment, and QR check-in for the AHS/AGHS alumni Ngong Hills hike
 (19 September 2026). A one-off event tool, not a reusable multi-event platform.
 
 Live at [busherian-hike.vercel.app](https://busherian-hike.vercel.app).
