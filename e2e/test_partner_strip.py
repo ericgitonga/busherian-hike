@@ -23,7 +23,7 @@ def test_partner_strip_links_impala_club_to_its_site():
         page.goto("/")
         strip = page.get_by_test_id("partner-strip")
         strip.wait_for(state="visible")
-        link = strip.get_by_role("link")
+        link = strip.get_by_role("link", name="Impala Club")
         assert link.get_attribute("href") == "https://www.impalaclub.co.ke/"
 
 
