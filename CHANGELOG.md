@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.29.0] - 2026-08-31
+
+### Added
+
+- SasaSignal (https://sasasignal.com/) and En Mascaradores
+  (https://en-mascaradores.vercel.app/) added to the "With thanks to" sponsor strip, forming a
+  new partial third row (closes #86).
+
+tag: `v0.29.0`
+
 ## [0.28.0] - 2026-08-31
 
 ### Added
