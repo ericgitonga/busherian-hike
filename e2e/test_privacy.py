@@ -11,6 +11,7 @@ def test_privacy_link_navigates_to_notice():
         content.wait_for(state="visible")
         assert "Luchiri Omoto" in content.inner_text()
         assert "30 days" in content.inner_text()
+        assert "Ngong Hills Hike & After Party" in content.inner_text()
 
 
 def test_next_of_kin_hint_visible_on_registration_form():

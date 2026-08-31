@@ -22,7 +22,7 @@ const dancingScript = Dancing_Script({
 export const metadata: Metadata = {
   title: "AHS/AGHS Alumni Hike — Registration",
   description:
-    "Register for the AHS/AGHS alumni Ngong Hills hike, 19 September 2026.",
+    "Register for the Ngong Hills Hike & After Party, 19 September 2026.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
