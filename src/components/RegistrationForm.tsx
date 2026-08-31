@@ -12,7 +12,12 @@ import {
   type RegistrationFieldErrors,
 } from "@/lib/registration";
 import type { MpesaPaymentFieldErrors } from "@/lib/mpesa-payment";
-import { MPESA_RECIPIENT_NAME, MPESA_RECIPIENT_PHONE, PER_HIKER_FEE_KES } from "@/lib/payment";
+import {
+  MPESA_RECIPIENT_NAME,
+  MPESA_RECIPIENT_PHONE,
+  PER_HIKER_FEE_KES,
+  totalFeeKes,
+} from "@/lib/payment";
 
 const initialMpesaValues = { payerPhone: "", mpesaCode: "" };
 
@@ -174,6 +179,8 @@ export default function RegistrationForm({
   }
 
   if (submitted) {
+    const guestCount = Number(values.guestCount) || 0;
+    const totalFee = totalFeeKes(guestCount);
     return (
       <div
         data-testid="registration-success"
@@ -181,11 +188,15 @@ export default function RegistrationForm({
       >
         <p className="font-semibold">You&apos;re registered!</p>
         <p className="mt-1 text-sm">
-          Send KES {PER_HIKER_FEE_KES} via M-Pesa to {MPESA_RECIPIENT_PHONE} (
-          {MPESA_RECIPIENT_NAME}) to confirm your spot.
+          Send KES {totalFee} via M-Pesa to {MPESA_RECIPIENT_PHONE} (
+          {MPESA_RECIPIENT_NAME}) to confirm your spot
+          {guestCount > 0 ? ` for you and ${guestCount} guest${guestCount === 1 ? "" : "s"}` : ""}
+          .
         </p>
         <div data-testid="fee-inclusions" className="mt-4 text-left text-xs text-green-800">
-          <p className="font-medium">Your KES {PER_HIKER_FEE_KES} covers:</p>
+          <p className="font-medium">
+            Your KES {totalFee} ({PER_HIKER_FEE_KES} × {1 + guestCount}) covers:
+          </p>
           <ul className="mt-1 list-inside list-disc">
             {values.ticketType === "hike_and_socials" &&
               HIKE_ONLY_INCLUSIONS.map((item) => <li key={item}>{item}</li>)}

@@ -4,3 +4,9 @@
 export const PER_HIKER_FEE_KES = 1500;
 export const MPESA_RECIPIENT_PHONE = "0723893192";
 export const MPESA_RECIPIENT_NAME = "Jessica Rutto";
+
+// Guests pay the same per-head rate as the registrant (issue #80) — the registrant plus their
+// guestCount, not guestCount alone.
+export function totalFeeKes(guestCount: number): number {
+  return PER_HIKER_FEE_KES * (1 + guestCount);
+}

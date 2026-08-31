@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.26.3] - 2026-08-31
+
+### Fixed
+
+- The amount shown to pay via M-Pesa (registration success screen) now accounts for guests —
+  `totalFeeKes(guestCount)`, the registrant plus each guest at the same per-head rate — instead
+  of always showing the flat per-hiker rate regardless of how many guests were registered
+  (closes #80).
+
+tag: `v0.26.3`
+
 ## [0.26.2] - 2026-08-31
 
 ### Fixed
