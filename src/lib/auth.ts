@@ -23,26 +23,30 @@ export function verifyCronSecret(authHeader: string | null): boolean {
   return safeEqual(authHeader, `Bearer ${expected}`);
 }
 
-// Short-lived, server-issued check-in session (issue #27) — replaces persisting the raw
+// Short-lived, server-issued organiser session (issue #27) — replaces persisting the raw
 // ORGANISER_PIN in localStorage indefinitely. Stateless: an HMAC-signed expiry, keyed on
 // ORGANISER_PIN itself (so rotating the PIN also invalidates every existing session, a nice
-// side effect), rather than a separate session table/store.
+// side effect), rather than a separate session table/store. Shared by every PIN-gated organiser
+// area (check-in, payments — issue #82) via its own separately-scoped cookie; the token itself
+// doesn't encode which area it's for, only that the PIN was verified within the TTL.
 export const CHECKIN_SESSION_COOKIE = "checkin_session";
-const CHECKIN_SESSION_TTL_SECONDS = 4 * 60 * 60; // long enough to span one event day
-export const CHECKIN_SESSION_MAX_AGE_SECONDS = CHECKIN_SESSION_TTL_SECONDS;
+export const PAYMENTS_SESSION_COOKIE = "payments_session";
+const ORGANISER_SESSION_TTL_SECONDS = 4 * 60 * 60; // long enough to span one event day
+export const CHECKIN_SESSION_MAX_AGE_SECONDS = ORGANISER_SESSION_TTL_SECONDS;
+export const PAYMENTS_SESSION_MAX_AGE_SECONDS = ORGANISER_SESSION_TTL_SECONDS;
 
 function signSessionExpiry(expiresAt: number, secret: string): string {
   return createHmac("sha256", secret).update(String(expiresAt)).digest("hex");
 }
 
-export function createCheckinSessionToken(): string {
+export function createOrganiserSessionToken(): string {
   const secret = process.env.ORGANISER_PIN;
   if (!secret) throw new Error("ORGANISER_PIN not set");
-  const expiresAt = Math.floor(Date.now() / 1000) + CHECKIN_SESSION_TTL_SECONDS;
+  const expiresAt = Math.floor(Date.now() / 1000) + ORGANISER_SESSION_TTL_SECONDS;
   return `${expiresAt}.${signSessionExpiry(expiresAt, secret)}`;
 }
 
-export function verifyCheckinSessionToken(token: string | undefined | null): boolean {
+export function verifyOrganiserSessionToken(token: string | undefined | null): boolean {
   const secret = process.env.ORGANISER_PIN;
   if (!secret || !token) return false;
 

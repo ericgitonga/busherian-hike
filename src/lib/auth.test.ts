@@ -1,9 +1,9 @@
 import { timingSafeEqual } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  createCheckinSessionToken,
+  createOrganiserSessionToken,
   safeEqual,
-  verifyCheckinSessionToken,
+  verifyOrganiserSessionToken,
   verifyCronSecret,
   verifyPin,
 } from "./auth";
@@ -116,57 +116,57 @@ describe("checkin session tokens", () => {
   });
 
   it("accepts a freshly created token", () => {
-    const token = createCheckinSessionToken();
-    expect(verifyCheckinSessionToken(token)).toBe(true);
+    const token = createOrganiserSessionToken();
+    expect(verifyOrganiserSessionToken(token)).toBe(true);
   });
 
   it("rejects a token once its expiry has passed", () => {
-    const token = createCheckinSessionToken();
+    const token = createOrganiserSessionToken();
     vi.setSystemTime(new Date("2026-08-27T16:00:01Z")); // just past the 4-hour TTL
-    expect(verifyCheckinSessionToken(token)).toBe(false);
+    expect(verifyOrganiserSessionToken(token)).toBe(false);
   });
 
   it("accepts a token right up to the instant before expiry", () => {
-    const token = createCheckinSessionToken();
+    const token = createOrganiserSessionToken();
     vi.setSystemTime(new Date("2026-08-27T15:59:59Z")); // just before the 4-hour TTL
-    expect(verifyCheckinSessionToken(token)).toBe(true);
+    expect(verifyOrganiserSessionToken(token)).toBe(true);
   });
 
   it("rejects a token with a tampered expiry", () => {
-    const token = createCheckinSessionToken();
+    const token = createOrganiserSessionToken();
     const [, signature] = token.split(".");
     const tampered = `${Math.floor(Date.now() / 1000) + 999_999}.${signature}`;
-    expect(verifyCheckinSessionToken(tampered)).toBe(false);
+    expect(verifyOrganiserSessionToken(tampered)).toBe(false);
   });
 
   it("rejects a token with a tampered signature", () => {
-    const token = createCheckinSessionToken();
+    const token = createOrganiserSessionToken();
     const [expiresAt] = token.split(".");
-    expect(verifyCheckinSessionToken(`${expiresAt}.not-the-real-signature`)).toBe(false);
+    expect(verifyOrganiserSessionToken(`${expiresAt}.not-the-real-signature`)).toBe(false);
   });
 
   it("rejects malformed tokens without throwing", () => {
-    expect(() => verifyCheckinSessionToken("garbage")).not.toThrow();
-    expect(verifyCheckinSessionToken("garbage")).toBe(false);
-    expect(verifyCheckinSessionToken("")).toBe(false);
-    expect(verifyCheckinSessionToken(undefined)).toBe(false);
-    expect(verifyCheckinSessionToken(null)).toBe(false);
+    expect(() => verifyOrganiserSessionToken("garbage")).not.toThrow();
+    expect(verifyOrganiserSessionToken("garbage")).toBe(false);
+    expect(verifyOrganiserSessionToken("")).toBe(false);
+    expect(verifyOrganiserSessionToken(undefined)).toBe(false);
+    expect(verifyOrganiserSessionToken(null)).toBe(false);
   });
 
   it("rejects every token once ORGANISER_PIN is unset (e.g. after rotation)", () => {
-    const token = createCheckinSessionToken();
+    const token = createOrganiserSessionToken();
     delete process.env.ORGANISER_PIN;
-    expect(verifyCheckinSessionToken(token)).toBe(false);
+    expect(verifyOrganiserSessionToken(token)).toBe(false);
   });
 
   it("rejects a token signed under a different PIN", () => {
-    const token = createCheckinSessionToken();
+    const token = createOrganiserSessionToken();
     process.env.ORGANISER_PIN = "87654321";
-    expect(verifyCheckinSessionToken(token)).toBe(false);
+    expect(verifyOrganiserSessionToken(token)).toBe(false);
   });
 
   it("throws creating a token when ORGANISER_PIN is unset", () => {
     delete process.env.ORGANISER_PIN;
-    expect(() => createCheckinSessionToken()).toThrow();
+    expect(() => createOrganiserSessionToken()).toThrow();
   });
 });

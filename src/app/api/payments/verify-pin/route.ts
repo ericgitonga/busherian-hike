@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import {
-  CHECKIN_SESSION_COOKIE,
-  CHECKIN_SESSION_MAX_AGE_SECONDS,
   createOrganiserSessionToken,
+  PAYMENTS_SESSION_COOKIE,
+  PAYMENTS_SESSION_MAX_AGE_SECONDS,
   verifyOrganiserSessionToken,
   verifyPin,
 } from "@/lib/auth";
@@ -13,21 +13,21 @@ import {
   PIN_AUTH_RATE_LIMIT,
   recordAuthFailure,
 } from "@/lib/rate-limit";
-import { getPaidAttendees } from "@/lib/registrations-store";
+import { getRegistrationsForPayments } from "@/lib/registrations-store";
 
 export const dynamic = "force-dynamic";
 
-const ROUTE = "checkin-verify";
+const ROUTE = "payments-verify";
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
-  const existingSession = cookieStore.get(CHECKIN_SESSION_COOKIE)?.value;
+  const existingSession = cookieStore.get(PAYMENTS_SESSION_COOKIE)?.value;
 
-  // Already has a valid session (e.g. checkin/page.tsx's "Refresh list") — skip PIN
+  // Already has a valid session (e.g. the payments page's "Refresh list") — skip PIN
   // verification and rate limiting entirely, no need to resend the secret.
   if (verifyOrganiserSessionToken(existingSession)) {
-    const attendees = await getPaidAttendees();
-    return NextResponse.json({ ok: true, attendees });
+    const registrations = await getRegistrationsForPayments();
+    return NextResponse.json({ ok: true, registrations });
   }
 
   const ip = clientIpFromHeaders(request.headers);
@@ -41,14 +41,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
-  const attendees = await getPaidAttendees();
-  const response = NextResponse.json({ ok: true, attendees });
-  response.cookies.set(CHECKIN_SESSION_COOKIE, createOrganiserSessionToken(), {
+  const registrations = await getRegistrationsForPayments();
+  const response = NextResponse.json({ ok: true, registrations });
+  response.cookies.set(PAYMENTS_SESSION_COOKIE, createOrganiserSessionToken(), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: CHECKIN_SESSION_MAX_AGE_SECONDS,
-    path: "/api/checkin",
+    maxAge: PAYMENTS_SESSION_MAX_AGE_SECONDS,
+    path: "/api/payments",
   });
   return response;
 }
