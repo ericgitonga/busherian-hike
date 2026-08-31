@@ -10,9 +10,10 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
 ### Added
 
-- Real SMS confirmations via SasaSignal (`sms.ts`), Sender ID `smsinfo` — authenticated with a
-  bearer token (`SASASIGNAL_API_TOKEN`, obtained once outside the app), a fresh
-  `Idempotency-Key` per send, and recipient numbers normalized to `+254...` (closes #84).
+- Real SMS confirmations via SasaSignal (`sms.ts`), Sender ID `SMSBiashara` (`smsinfo` was tried
+  first but SasaSignal support confirmed it fails post-acceptance on this account) —
+  authenticated with a bearer token (`SASASIGNAL_API_TOKEN`, obtained once outside the app), a
+  fresh `Idempotency-Key` per send, and recipient numbers normalized to `+254...` (closes #84).
 
 ### Changed
 

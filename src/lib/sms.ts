@@ -7,9 +7,11 @@ import { randomUUID } from "node:crypto";
 // confirmation section for why the three were originally kept in lockstep).
 const SASASIGNAL_SEND_URL = "https://sasasignal.com/api/v1/sms/transactional/send";
 
-// Fixed per-account value, not environment-specific — the Sender ID SasaSignal issued for this
-// account, same across dev/preview/production.
-export const SASASIGNAL_SENDER_ID = "smsinfo";
+// Fixed per-account value, not environment-specific — the Sender ID SasaSignal's own support
+// confirmed for this account (2026-08-31, after "smsinfo" came back Failed post-acceptance —
+// see issue #84), same across dev/preview/production. "SMS News" also works on this account per
+// the same support response — either is fine, this one was just picked first.
+export const SASASIGNAL_SENDER_ID = "SMSBiashara";
 
 // KENYAN_PHONE_REGEX (registration.ts) accepts either "0712345678" or "+254712345678" as typed
 // by a hiker. SasaSignal's docs are only explicit about the "+254xxxxxxxxx" form (airtime/buy's
