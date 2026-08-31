@@ -7,6 +7,7 @@ def test_homepage_loads():
     with browser_page() as page:
         resp = page.goto("/")
         assert resp.status == 200
+        assert "Ngong Hills Hike & After Party" in page.title()
 
 
 def test_health_endpoint():

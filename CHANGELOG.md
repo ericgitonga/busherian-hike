@@ -12,7 +12,8 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
 - Client feedback: participant-facing messaging now names the event "Ngong Hills Hike & After
   Party" instead of "AHS/AGHS alumni Ngong Hills hike" — the confirmation SMS text, site
-  metadata description, and the privacy notice (closes #88).
+  metadata description, the privacy notice, and both browser tab titles (homepage, privacy
+  notice) (closes #88).
 
 tag: `v0.29.1`
 

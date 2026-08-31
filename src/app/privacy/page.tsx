@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { RETENTION_DAYS } from "@/lib/retention";
 
 export const metadata: Metadata = {
-  title: "Privacy Notice — AHS/AGHS Alumni Hike",
+  title: "Privacy Notice — Ngong Hills Hike & After Party",
 };
 
 export default function PrivacyPage() {

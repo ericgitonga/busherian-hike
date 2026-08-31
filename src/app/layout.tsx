@@ -20,7 +20,7 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
-  title: "AHS/AGHS Alumni Hike — Registration",
+  title: "Ngong Hills Hike & After Party — Registration",
   description:
     "Register for the Ngong Hills Hike & After Party, 19 September 2026.",
 };
