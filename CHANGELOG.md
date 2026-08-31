@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.26.2] - 2026-08-31
+
+### Fixed
+
+- `MPESA_RECIPIENT_PHONE`/`MPESA_RECIPIENT_NAME` in `src/lib/payment.ts` now hold the real
+  registration-fee recipient — Jessica Rutto, +254723893192 — replacing the `Luchiri
+  (PLACEHOLDER)`/`0700000000` values (closes #78).
+
+tag: `v0.26.2`
+
 ## [0.26.1] - 2026-08-29
 
 ### Fixed
