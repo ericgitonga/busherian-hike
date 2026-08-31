@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.29.1] - 2026-08-31
+
+### Changed
+
+- Client feedback: participant-facing messaging now names the event "Ngong Hills Hike & After
+  Party" instead of "AHS/AGHS alumni Ngong Hills hike" — the confirmation SMS text, site
+  metadata description, the privacy notice, and both browser tab titles (homepage, privacy
+  notice) (closes #88).
+
+tag: `v0.29.1`
+
 ## [0.29.0] - 2026-08-31
 
 ### Added

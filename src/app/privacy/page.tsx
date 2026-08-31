@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { RETENTION_DAYS } from "@/lib/retention";
 
 export const metadata: Metadata = {
-  title: "Privacy Notice — AHS/AGHS Alumni Hike",
+  title: "Privacy Notice — Ngong Hills Hike & After Party",
 };
 
 export default function PrivacyPage() {
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
         >
           <p>
             This notice covers the data collected through this site&apos;s registration form
-            for the AHS/AGHS alumni Ngong Hills hike, 19 September 2026.
+            for the Ngong Hills Hike & After Party, 19 September 2026.
           </p>
 
           <section>

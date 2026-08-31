@@ -7,4 +7,10 @@ describe("buildConfirmationMessage", () => {
     expect(message).toContain("Wanjiru Kamau");
     expect(message).toContain("19 September 2026");
   });
+
+  it("names the event \"Ngong Hills Hike & After Party\", not the old AHS/AGHS phrasing (issue #88)", () => {
+    const message = buildConfirmationMessage("Wanjiru Kamau");
+    expect(message).toContain("Ngong Hills Hike & After Party");
+    expect(message).not.toContain("AHS/AGHS alumni Ngong Hills hike");
+  });
 });
