@@ -34,6 +34,28 @@ def test_registration_golden_path():
         assert "Impala Club" in text
 
 
+def test_registration_total_fee_covers_guests():
+    """Regression coverage for issue #80: the amount shown must be per-hiker rate ×
+    (1 + guests), not the flat per-hiker rate regardless of guest count."""
+    with browser_page() as page:
+        page.goto("/")
+        page.get_by_test_id("field-name").fill("Wanjiru Kamau")
+        page.get_by_test_id("field-ageGroup").select_option("30–39")
+        page.get_by_test_id("field-school").select_option("AGHS")
+        page.get_by_test_id("field-yearLeft").fill("2010")
+        page.get_by_test_id("field-guestCount").fill("2")
+        page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
+        page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
+        page.get_by_test_id("field-isTestRow").check()
+        page.get_by_test_id("submit-registration").click()
+
+        success = page.get_by_test_id("registration-success")
+        success.wait_for(state="visible")
+        text = success.inner_text()
+        assert "KES 4500" in text or "KES 4,500" in text
+        assert "KES 1500" not in text and "KES 1,500" not in text
+
+
 def test_registration_socials_only_ticket_type():
     with browser_page() as page:
         page.goto("/")
@@ -74,6 +96,7 @@ def test_registration_requires_mandatory_fields():
 
 TESTS = [
     test_registration_golden_path,
+    test_registration_total_fee_covers_guests,
     test_registration_socials_only_ticket_type,
     test_registration_requires_mandatory_fields,
 ]
