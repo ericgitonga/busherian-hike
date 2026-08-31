@@ -2,7 +2,6 @@ import { buildConfirmationMessage } from "@/lib/confirmation-message";
 import { sendEmailConfirmation } from "@/lib/email";
 import { generateRegistrationQrCode } from "@/lib/qr";
 import { sendSmsConfirmation } from "@/lib/sms";
-import { sendWhatsAppConfirmation } from "@/lib/whatsapp";
 
 export type ConfirmationInput = {
   registrationId: string;
@@ -12,7 +11,6 @@ export type ConfirmationInput = {
 };
 
 export type ConfirmationResult = {
-  whatsappSent: boolean;
   smsSent: boolean;
   emailSent: boolean;
 };
@@ -21,20 +19,21 @@ export type ConfirmationResult = {
 // transaction code — payment is direct M-Pesa P2P now, not an IntaSend webhook (issue #70,
 // superseding #7), so the phone number is whatever they typed in as their own payer number at
 // that point, not something this function looks up itself.
+//
+// WhatsApp is shelved for now (issue #84) — sendWhatsAppConfirmation (whatsapp.ts) still exists
+// as a placeholder but isn't called from here; revisit once there's a BSP account to wire it up
+// for real, the same way SMS just was.
 export async function sendConfirmation(
   input: ConfirmationInput,
 ): Promise<ConfirmationResult> {
   const qrDataUrl = await generateRegistrationQrCode(input.registrationId);
   const message = buildConfirmationMessage(input.name);
 
-  const [whatsappSent, smsSent] = await Promise.all([
-    sendWhatsAppConfirmation(input.phone, message),
-    sendSmsConfirmation(input.phone, message),
-  ]);
+  const smsSent = await sendSmsConfirmation(input.phone, message);
 
   const emailSent = input.email
     ? await sendEmailConfirmation(input.email, input.name, qrDataUrl)
     : false;
 
-  return { whatsappSent, smsSent, emailSent };
+  return { smsSent, emailSent };
 }
