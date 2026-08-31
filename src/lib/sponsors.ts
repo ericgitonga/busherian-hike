@@ -20,6 +20,10 @@ export type Sponsor = {
 // auto-placement, no gridColStart needed: only a partial row needs the explicit left/right
 // col-start override, same reasoning as en-mascaradores' mascot grid. ZBOM has no linkHref yet
 // (issue #75) — SponsorStrip renders it as a plain, non-clickable logo until one is confirmed.
+// SasaSignal and En Mascaradores (issue #86) land in row 3, columns 1-2 — a partial row that,
+// unlike row 1's left/right pair, doesn't need a gridColStart override since auto-placement
+// already fills left-to-right from column 1; the override is only for forcing a specific column
+// (e.g. centring a lone item), not needed here with two items filling from the start.
 export const SPONSORS: Sponsor[] = [
   {
     name: "Vecarian Plant Limited",
@@ -53,5 +57,15 @@ export const SPONSORS: Sponsor[] = [
   {
     name: "ZBOM",
     logoSrc: "/zbom-logo.png",
+  },
+  {
+    name: "SasaSignal",
+    logoSrc: "/sasasignal-logo.png",
+    linkHref: "https://sasasignal.com/",
+  },
+  {
+    name: "En Mascaradores",
+    logoSrc: "/en-mascaradores-logo.png",
+    linkHref: "https://en-mascaradores.vercel.app/",
   },
 ];
