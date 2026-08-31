@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { CHECKIN_SESSION_COOKIE, verifyCheckinSessionToken } from "@/lib/auth";
+import { CHECKIN_SESSION_COOKIE, verifyOrganiserSessionToken } from "@/lib/auth";
 import { markCheckedIn } from "@/lib/registrations-store";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 // organiser, so this needs to support real check-in throughput with no artificial cap.
 export async function POST(request: Request) {
   const cookieStore = await cookies();
-  if (!verifyCheckinSessionToken(cookieStore.get(CHECKIN_SESSION_COOKIE)?.value)) {
+  if (!verifyOrganiserSessionToken(cookieStore.get(CHECKIN_SESSION_COOKIE)?.value)) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

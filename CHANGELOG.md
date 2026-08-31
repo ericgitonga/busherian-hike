@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.27.0] - 2026-08-31
+
+### Added
+
+- New PIN-gated `/payments` page (option 2 of issue #82): whoever collects the registration fee
+  can now mark a registration paid themselves once they've cross-checked the submitted M-Pesa
+  proof against what they actually received. Marking one row paid covers the registrant's
+  guests too — the public "slots remaining" counter now decrements by `1 + guest_count`, not
+  just `1`, and the row becomes eligible for check-in at `/checkin`.
+- `src/lib/auth.ts`'s check-in-only session-token helpers (`createCheckinSessionToken`/
+  `verifyCheckinSessionToken`) are now the generic `createOrganiserSessionToken`/
+  `verifyOrganiserSessionToken`, shared by `/checkin` and `/payments` under separately-scoped
+  cookies.
+
+### Fixed
+
+- `getPaidCount()` (`registrations-store.ts`) now sums `1 + guest_count` across paid
+  registrations instead of counting rows — the capacity cap was always meant to be a headcount
+  (100, confirmed) per `extras/requirements.md`, not a registration count.
+
+tag: `v0.27.0`
+
 ## [0.26.3] - 2026-08-31
 
 ### Fixed
