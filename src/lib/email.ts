@@ -1,7 +1,8 @@
-// PLACEHOLDER, kept structurally identical to whatsapp.ts/sms.ts even though a real Resend
-// integration (see umoja-voices' src/lib/email.ts) would be low-friction here — deliberately
-// deferred so all three confirmation channels flip on together rather than email silently
-// working while WhatsApp/SMS don't. No-ops until RESEND_API_KEY is set.
+// PLACEHOLDER, kept structurally identical to whatsapp.ts even though a real Resend integration
+// (see umoja-voices' src/lib/email.ts) would be low-friction here. The "all three channels flip
+// on together" reasoning this used to share with sms.ts no longer applies — SMS was wired up
+// for real via SasaSignal (issue #84) without waiting on this one; email just hasn't been asked
+// for yet. No-ops until RESEND_API_KEY is set.
 export async function sendEmailConfirmation(
   to: string,
   name: string,

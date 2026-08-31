@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.28.0] - 2026-08-31
+
+### Added
+
+- Real SMS confirmations via SasaSignal (`sms.ts`), Sender ID `SMSBiashara` (`smsinfo` was tried
+  first but SasaSignal support confirmed it fails post-acceptance on this account) —
+  authenticated with a bearer token (`SASASIGNAL_API_TOKEN`, obtained once outside the app), a
+  fresh `Idempotency-Key` per send, and recipient numbers normalized to `+254...` (closes #84).
+
+### Changed
+
+- WhatsApp confirmations are shelved — `sendConfirmation` no longer calls
+  `sendWhatsAppConfirmation` (the placeholder itself is untouched, for a future BSP account).
+  `ConfirmationResult` drops `whatsappSent`.
+
+tag: `v0.28.0`
+
 ## [0.27.0] - 2026-08-31
 
 ### Added

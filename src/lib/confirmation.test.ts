@@ -9,7 +9,6 @@ describe("sendConfirmation", () => {
       phone: "0712345678",
     });
     expect(result).toEqual({
-      whatsappSent: false,
       smsSent: false,
       emailSent: false,
     });
