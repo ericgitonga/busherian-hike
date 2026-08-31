@@ -84,5 +84,24 @@ describe("sendSmsConfirmation", () => {
       const result = await sendSmsConfirmation("0712345678", "hello");
       expect(result).toBe(false);
     });
+
+    it("logs the accepted response body on success — a 2xx only means SasaSignal queued it, not that it delivered", async () => {
+      const fetchSpy = vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ sms_status: "Prequeued", sasasignal_sms_id: "abc-123" }), {
+            status: 200,
+          }),
+        );
+      vi.stubGlobal("fetch", fetchSpy);
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+      await sendSmsConfirmation("0712345678", "hello");
+
+      expect(logSpy).toHaveBeenCalledWith(
+        expect.stringContaining("sasasignal_sms_id"),
+      );
+      logSpy.mockRestore();
+    });
   });
 });

@@ -49,14 +49,21 @@ export async function sendSmsConfirmation(
       body,
     });
 
+    const text = await response.text().catch(() => "");
+
     if (!response.ok) {
-      const text = await response.text().catch(() => "");
       console.log(
         `[sms:failed] SasaSignal responded ${response.status} sending to ${phone}: ${text}`,
       );
       return false;
     }
 
+    // A 200 here only means SasaSignal *accepted* the send (their docs' initial status is
+    // "Prequeued") — it can still fail delivery downstream (sender ID not approved, insufficient
+    // float, etc.) with no error surfaced back to this call at all. Log the accepted response
+    // (carries sasasignal_sms_id + sms_status) so a "no SMS arrived" report can be traced from
+    // Vercel logs instead of needing a one-off diagnostic script, the way issue #84's rollout did.
+    console.log(`[sms:accepted] SasaSignal accepted a send to ${phone}: ${text}`);
     return true;
   } catch (err) {
     console.log(
