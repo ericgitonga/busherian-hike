@@ -2,7 +2,7 @@
 IntaSend Payment Link/webhook — #6/#7/#35).
 
 MPESA_RECIPIENT_PHONE/NAME (src/lib/payment.ts) are fixed UI copy, not data-driven — like the
-partner/sponsor strips, safe to assert the literal placeholder values here.
+partner/sponsor strips, safe to assert the literal values here.
 """
 
 from _common import browser_page, run_tests
@@ -27,13 +27,13 @@ def _register(page) -> None:
     page.get_by_test_id("registration-success").wait_for(state="visible")
 
 
-def test_mpesa_payment_instructions_show_placeholder_recipient():
+def test_mpesa_payment_instructions_show_recipient():
     with browser_page() as page:
         _register(page)
         success = page.get_by_test_id("registration-success")
         text = success.inner_text()
-        assert "0700000000" in text
-        assert "Luchiri" in text
+        assert "0723893192" in text
+        assert "Jessica Rutto" in text
 
 
 def test_mpesa_payment_golden_path():
@@ -74,7 +74,7 @@ def test_mpesa_payment_requires_a_code():
 
 
 TESTS = [
-    test_mpesa_payment_instructions_show_placeholder_recipient,
+    test_mpesa_payment_instructions_show_recipient,
     test_mpesa_payment_golden_path,
     test_mpesa_payment_rejects_invalid_phone,
     test_mpesa_payment_requires_a_code,
