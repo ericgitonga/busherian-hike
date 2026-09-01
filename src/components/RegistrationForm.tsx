@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { registerHiker, submitMpesaPayment } from "@/app/actions";
 import {
@@ -67,6 +68,7 @@ export default function RegistrationForm({
 }: {
   isTestEnvironment: boolean;
 }) {
+  const router = useRouter();
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<RegistrationFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -78,7 +80,6 @@ export default function RegistrationForm({
   const [mpesaValues, setMpesaValues] = useState(initialMpesaValues);
   const [mpesaErrors, setMpesaErrors] = useState<MpesaPaymentFieldErrors>({});
   const [mpesaSubmitting, setMpesaSubmitting] = useState(false);
-  const [mpesaSubmitted, setMpesaSubmitted] = useState(false);
   const [mpesaRateLimited, setMpesaRateLimited] = useState(false);
   const [mpesaGenericError, setMpesaGenericError] = useState(false);
 
@@ -149,7 +150,7 @@ export default function RegistrationForm({
       return;
     }
 
-    setMpesaSubmitted(true);
+    router.push("/confirmation");
   }
 
   if (full) {
@@ -178,249 +179,254 @@ export default function RegistrationForm({
     );
   }
 
-  if (submitted) {
-    const guestCount = Number(values.guestCount) || 0;
-    const totalFee = totalFeeKes(guestCount);
-    return (
-      <div
-        data-testid="registration-success"
-        className="rounded-md border border-green-200 bg-green-50 px-4 py-6 text-center text-green-900"
-      >
-        <p className="font-semibold">You&apos;re registered!</p>
-        <p className="mt-1 text-sm">
-          Send KES {totalFee} via M-Pesa to {MPESA_RECIPIENT_PHONE} (
-          {MPESA_RECIPIENT_NAME}) to confirm your spot
-          {guestCount > 0 ? ` for you and ${guestCount} guest${guestCount === 1 ? "" : "s"}` : ""}
-          .
-        </p>
-        <div data-testid="fee-inclusions" className="mt-4 text-left text-xs text-green-800">
-          <p className="font-medium">
-            Your KES {totalFee} ({PER_HIKER_FEE_KES} × {1 + guestCount}) covers:
-          </p>
-          <ul className="mt-1 list-inside list-disc">
-            {values.ticketType === "hike_and_socials" &&
-              HIKE_ONLY_INCLUSIONS.map((item) => <li key={item}>{item}</li>)}
-            {SHARED_TICKET_INCLUSIONS.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </div>
-
-        {mpesaSubmitted ? (
-          <p data-testid="mpesa-payment-recorded" className="mt-4 text-sm font-medium">
-            Payment details recorded — thank you! We&apos;ll send your confirmation and QR code
-            to the number above shortly.
-          </p>
-        ) : (
-          <form
-            data-testid="mpesa-payment-form"
-            onSubmit={handleMpesaSubmit}
-            className="mt-4 flex flex-col gap-3 text-left"
-            noValidate
-          >
-            <p className="text-xs font-medium text-green-900">
-              Already sent it? Enter the number you paid from and the M-Pesa transaction code
-              from the confirmation SMS.
-            </p>
-            <Field label="Your M-Pesa phone number" error={mpesaErrors.payerPhone}>
-              <input
-                data-testid="field-payerPhone"
-                className={inputClass}
-                placeholder="0712345678"
-                value={mpesaValues.payerPhone}
-                onChange={(e) => updateMpesa("payerPhone", e.target.value)}
-              />
-            </Field>
-            <Field label="M-Pesa transaction code" error={mpesaErrors.mpesaCode}>
-              <input
-                data-testid="field-mpesaCode"
-                className={inputClass}
-                value={mpesaValues.mpesaCode}
-                onChange={(e) => updateMpesa("mpesaCode", e.target.value)}
-              />
-            </Field>
-            {mpesaRateLimited && (
-              <p
-                data-testid="mpesa-rate-limited"
-                className="text-xs font-normal text-red-600"
-                role="alert"
-              >
-                Too many attempts. Please wait a bit and try again.
-              </p>
-            )}
-            {mpesaGenericError && (
-              <p className="text-xs font-normal text-red-600" role="alert">
-                Something went wrong — please try again, or contact the organiser directly.
-              </p>
-            )}
-            <button
-              data-testid="submit-mpesa-payment"
-              type="submit"
-              disabled={mpesaSubmitting}
-              className="rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50"
-            >
-              {mpesaSubmitting ? "Submitting…" : "Submit payment proof"}
-            </button>
-          </form>
-        )}
-      </div>
-    );
-  }
+  const guestCount = Number(values.guestCount) || 0;
+  const totalFee = totalFeeKes(guestCount);
 
   return (
-    <form
-      data-testid="registration-form"
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-4"
-      noValidate
-    >
-      <Field label="Full name" error={errors.name}>
-        <input
-          data-testid="field-name"
-          className={inputClass}
-          value={values.name}
-          onChange={(e) => update("name", e.target.value)}
-        />
-      </Field>
-
-      <Field label="Age group" error={errors.ageGroup}>
-        <select
-          data-testid="field-ageGroup"
-          className={inputClass}
-          value={values.ageGroup}
-          onChange={(e) => update("ageGroup", e.target.value)}
-        >
-          <option value="">Select…</option>
-          {AGE_GROUP_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </Field>
-
-      <Field label="School" error={errors.school}>
-        <select
-          data-testid="field-school"
-          className={inputClass}
-          value={values.school}
-          onChange={(e) => update("school", e.target.value)}
-        >
-          <option value="">Select…</option>
-          {SCHOOL_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </Field>
-
-      <Field label="Year left" error={errors.yearLeft}>
-        <input
-          data-testid="field-yearLeft"
-          className={inputClass}
-          inputMode="numeric"
-          value={values.yearLeft}
-          onChange={(e) => update("yearLeft", e.target.value)}
-        />
-      </Field>
-
-      <Field label="Number of guests" error={errors.guestCount}>
-        <input
-          data-testid="field-guestCount"
-          className={inputClass}
-          inputMode="numeric"
-          value={values.guestCount}
-          onChange={(e) => update("guestCount", e.target.value)}
-        />
-      </Field>
-
-      <Field label="Next-of-kin name" error={errors.nextOfKinName}>
-        <input
-          data-testid="field-nextOfKinName"
-          className={inputClass}
-          value={values.nextOfKinName}
-          onChange={(e) => update("nextOfKinName", e.target.value)}
-        />
-      </Field>
-
-      <Field label="Next-of-kin contact" error={errors.nextOfKinContact}>
-        <input
-          data-testid="field-nextOfKinContact"
-          className={inputClass}
-          placeholder="0712345678"
-          value={values.nextOfKinContact}
-          onChange={(e) => update("nextOfKinContact", e.target.value)}
-        />
-      </Field>
-      <p data-testid="next-of-kin-hint" className="-mt-2 text-xs text-zinc-500">
-        Emergency contact only — please confirm they&apos;re okay being listed. See our{" "}
-        <Link href="/privacy" className="underline hover:text-zinc-700">
-          Privacy Notice
-        </Link>
-        .
-      </p>
-
-      <label className="flex items-center gap-2 text-sm font-medium text-zinc-900">
-        <input
-          data-testid="field-needsBus"
-          type="checkbox"
-          checked={values.needsBus}
-          onChange={(e) => update("needsBus", e.target.checked)}
-        />
-        I need a seat on the bus
-      </label>
-
-      <fieldset
-        data-testid="field-ticketType"
-        className="flex flex-col gap-1 text-sm font-medium text-zinc-900"
+    <>
+      <form
+        data-testid="registration-form"
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4"
+        noValidate
       >
-        <legend className="mb-1">Ticket type — KES {PER_HIKER_FEE_KES} either way</legend>
-        {TICKET_TYPE_OPTIONS.map((option) => (
-          <label key={option.value} className="flex items-center gap-2 font-normal">
+        {/* display: contents keeps the parent's flex/gap layout — locking the fields via a
+            fieldset shouldn't introduce an extra box. */}
+        <fieldset disabled={submitted} className="contents">
+          <Field label="Full name" error={errors.name}>
             <input
-              data-testid={`ticket-type-${option.value}`}
-              type="radio"
-              name="ticketType"
-              value={option.value}
-              checked={values.ticketType === option.value}
-              onChange={() => update("ticketType", option.value)}
+              data-testid="field-name"
+              className={inputClass}
+              value={values.name}
+              onChange={(e) => update("name", e.target.value)}
             />
-            {option.label}
+          </Field>
+
+          <Field label="Age group" error={errors.ageGroup}>
+            <select
+              data-testid="field-ageGroup"
+              className={inputClass}
+              value={values.ageGroup}
+              onChange={(e) => update("ageGroup", e.target.value)}
+            >
+              <option value="">Select…</option>
+              {AGE_GROUP_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="School" error={errors.school}>
+            <select
+              data-testid="field-school"
+              className={inputClass}
+              value={values.school}
+              onChange={(e) => update("school", e.target.value)}
+            >
+              <option value="">Select…</option>
+              {SCHOOL_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Year left" error={errors.yearLeft}>
+            <input
+              data-testid="field-yearLeft"
+              className={inputClass}
+              inputMode="numeric"
+              value={values.yearLeft}
+              onChange={(e) => update("yearLeft", e.target.value)}
+            />
+          </Field>
+
+          <Field label="Number of guests" error={errors.guestCount}>
+            <input
+              data-testid="field-guestCount"
+              className={inputClass}
+              inputMode="numeric"
+              value={values.guestCount}
+              onChange={(e) => update("guestCount", e.target.value)}
+            />
+          </Field>
+
+          <Field label="Next-of-kin name" error={errors.nextOfKinName}>
+            <input
+              data-testid="field-nextOfKinName"
+              className={inputClass}
+              value={values.nextOfKinName}
+              onChange={(e) => update("nextOfKinName", e.target.value)}
+            />
+          </Field>
+
+          <Field label="Next-of-kin contact" error={errors.nextOfKinContact}>
+            <input
+              data-testid="field-nextOfKinContact"
+              className={inputClass}
+              placeholder="0712345678"
+              value={values.nextOfKinContact}
+              onChange={(e) => update("nextOfKinContact", e.target.value)}
+            />
+          </Field>
+          <p data-testid="next-of-kin-hint" className="-mt-2 text-xs text-zinc-500">
+            Emergency contact only — please confirm they&apos;re okay being listed. See our{" "}
+            <Link href="/privacy" className="underline hover:text-zinc-700">
+              Privacy Notice
+            </Link>
+            .
+          </p>
+
+          <label className="flex items-center gap-2 text-sm font-medium text-zinc-900">
+            <input
+              data-testid="field-needsBus"
+              type="checkbox"
+              checked={values.needsBus}
+              onChange={(e) => update("needsBus", e.target.checked)}
+            />
+            I need a seat on the bus
           </label>
-        ))}
-      </fieldset>
 
-      <Field label="Email (optional)" error={errors.email}>
-        <input
-          data-testid="field-email"
-          className={inputClass}
-          type="email"
-          value={values.email}
-          onChange={(e) => update("email", e.target.value)}
-        />
-      </Field>
+          <fieldset
+            data-testid="field-ticketType"
+            className="flex flex-col gap-1 text-sm font-medium text-zinc-900"
+          >
+            <legend className="mb-1">Ticket type — KES {PER_HIKER_FEE_KES} either way</legend>
+            {TICKET_TYPE_OPTIONS.map((option) => (
+              <label key={option.value} className="flex items-center gap-2 font-normal">
+                <input
+                  data-testid={`ticket-type-${option.value}`}
+                  type="radio"
+                  name="ticketType"
+                  value={option.value}
+                  checked={values.ticketType === option.value}
+                  onChange={() => update("ticketType", option.value)}
+                />
+                {option.label}
+              </label>
+            ))}
+          </fieldset>
 
-      {isTestEnvironment && (
-        <label className="flex items-center gap-2 text-sm font-medium text-amber-700">
-          <input
-            data-testid="field-isTestRow"
-            type="checkbox"
-            checked={values.isTestRow}
-            onChange={(e) => update("isTestRow", e.target.checked)}
-          />
-          This is a test registration (auto-removed by cleanup, not a real signup)
-        </label>
+          <Field label="Email (optional)" error={errors.email}>
+            <input
+              data-testid="field-email"
+              className={inputClass}
+              type="email"
+              value={values.email}
+              onChange={(e) => update("email", e.target.value)}
+            />
+          </Field>
+
+          {isTestEnvironment && (
+            <label className="flex items-center gap-2 text-sm font-medium text-amber-700">
+              <input
+                data-testid="field-isTestRow"
+                type="checkbox"
+                checked={values.isTestRow}
+                onChange={(e) => update("isTestRow", e.target.checked)}
+              />
+              This is a test registration (auto-removed by cleanup, not a real signup)
+            </label>
+          )}
+
+          <button
+            data-testid="submit-registration"
+            type="submit"
+            disabled={submitting || submitted}
+            className="mt-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50"
+          >
+            {submitted ? "Registered" : submitting ? "Submitting…" : "Register"}
+          </button>
+        </fieldset>
+      </form>
+
+      {submitted && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8">
+          <div
+            data-testid="registration-success"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Complete your payment"
+            className="max-h-full w-full max-w-md overflow-y-auto rounded-md border border-green-200 bg-green-50 px-4 py-6 text-center text-green-900 shadow-xl"
+          >
+            <p className="font-semibold">You&apos;re registered!</p>
+            <p className="mt-1 text-sm">
+              Send KES {totalFee} via M-Pesa to {MPESA_RECIPIENT_PHONE} (
+              {MPESA_RECIPIENT_NAME}) to confirm your spot
+              {guestCount > 0
+                ? ` for you and ${guestCount} guest${guestCount === 1 ? "" : "s"}`
+                : ""}
+              .
+            </p>
+            <div data-testid="fee-inclusions" className="mt-4 text-left text-xs text-green-800">
+              <p className="font-medium">
+                Your KES {totalFee} ({PER_HIKER_FEE_KES} × {1 + guestCount}) covers:
+              </p>
+              <ul className="mt-1 list-inside list-disc">
+                {values.ticketType === "hike_and_socials" &&
+                  HIKE_ONLY_INCLUSIONS.map((item) => <li key={item}>{item}</li>)}
+                {SHARED_TICKET_INCLUSIONS.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            <form
+              data-testid="mpesa-payment-form"
+              onSubmit={handleMpesaSubmit}
+              className="mt-4 flex flex-col gap-3 text-left"
+              noValidate
+            >
+              <p className="text-xs font-medium text-green-900">
+                Already sent it? Enter the number you paid from and the M-Pesa transaction code
+                from the confirmation SMS.
+              </p>
+              <Field label="Your M-Pesa phone number" error={mpesaErrors.payerPhone}>
+                <input
+                  data-testid="field-payerPhone"
+                  className={inputClass}
+                  placeholder="0712345678"
+                  value={mpesaValues.payerPhone}
+                  onChange={(e) => updateMpesa("payerPhone", e.target.value)}
+                />
+              </Field>
+              <Field label="M-Pesa transaction code" error={mpesaErrors.mpesaCode}>
+                <input
+                  data-testid="field-mpesaCode"
+                  className={inputClass}
+                  value={mpesaValues.mpesaCode}
+                  onChange={(e) => updateMpesa("mpesaCode", e.target.value)}
+                />
+              </Field>
+              {mpesaRateLimited && (
+                <p
+                  data-testid="mpesa-rate-limited"
+                  className="text-xs font-normal text-red-600"
+                  role="alert"
+                >
+                  Too many attempts. Please wait a bit and try again.
+                </p>
+              )}
+              {mpesaGenericError && (
+                <p className="text-xs font-normal text-red-600" role="alert">
+                  Something went wrong — please try again, or contact the organiser directly.
+                </p>
+              )}
+              <button
+                data-testid="submit-mpesa-payment"
+                type="submit"
+                disabled={mpesaSubmitting}
+                className="rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50"
+              >
+                {mpesaSubmitting ? "Submitting…" : "Submit payment proof"}
+              </button>
+            </form>
+          </div>
+        </div>
       )}
-
-      <button
-        data-testid="submit-registration"
-        type="submit"
-        disabled={submitting}
-        className="mt-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50"
-      >
-        {submitting ? "Submitting…" : "Register"}
-      </button>
-    </form>
+    </>
   );
 }

@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.31.0] - 2026-09-01
+
+### Changed
+
+- The M-Pesa payment proof-submission step now opens as a modal over the registration form
+  instead of replacing it, so hikers can still see the details they just entered while they pay.
+  The form stays visible in the background, locked with a disabled `fieldset`. Once payment
+  proof is submitted, the modal closes and a new `/confirmation` page shows the "recorded" message
+  (closes #92).
+
+tag: `v0.31.0`
+
 ## [0.30.0] - 2026-09-01
 
 ### Added
