@@ -101,11 +101,48 @@ def test_marking_paid_is_idempotent_and_shown_on_refresh():
         assert row.get_by_test_id("payment-row-mark-paid").count() == 0
 
 
+def test_inline_export_downloads_full_dataset_csv():
+    """Regression coverage for issue #90: exporting shouldn't require leaving /payments."""
+    pin = _read_organiser_pin()
+    with browser_page() as page:
+        page.goto("/payments")
+        page.get_by_test_id("payments-pin-input").fill(pin)
+        page.get_by_test_id("payments-pin-submit").click()
+        page.get_by_test_id("payments-search").wait_for(state="visible")
+
+        page.get_by_test_id("payments-export-toggle").click()
+        page.get_by_test_id("payments-export-pin-input").fill(pin)
+        with page.expect_download() as download_info:
+            page.get_by_test_id("payments-export-submit").click()
+        download = download_info.value
+        header = Path(download.path()).read_text().splitlines()[0]
+        assert "next_of_kin_contact" in header
+        assert "email" in header
+
+
+def test_inline_export_wrong_pin_rejected():
+    pin = _read_organiser_pin()
+    with browser_page() as page:
+        page.goto("/payments")
+        page.get_by_test_id("payments-pin-input").fill(pin)
+        page.get_by_test_id("payments-pin-submit").click()
+        page.get_by_test_id("payments-search").wait_for(state="visible")
+
+        page.get_by_test_id("payments-export-toggle").click()
+        page.get_by_test_id("payments-export-pin-input").fill("000000")
+        page.get_by_test_id("payments-export-submit").click()
+        error = page.get_by_test_id("payments-export-pin-error")
+        error.wait_for(state="visible")
+        assert "wrong" in error.inner_text().lower()
+
+
 TESTS = [
     test_wrong_pin_rejected,
     test_correct_pin_unlocks_payments,
     test_marking_paid_covers_registrant_and_guests,
     test_marking_paid_is_idempotent_and_shown_on_refresh,
+    test_inline_export_downloads_full_dataset_csv,
+    test_inline_export_wrong_pin_rejected,
 ]
 
 if __name__ == "__main__":
