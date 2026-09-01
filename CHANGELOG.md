@@ -10,10 +10,11 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
 ### Changed
 
-- The M-Pesa payment confirmation/proof-submission step now opens as a modal over the
-  registration form instead of replacing it, so hikers can still see the details they just
-  entered while they pay. The form stays visible in the background, locked with a disabled
-  `fieldset` (closes #92).
+- The M-Pesa payment proof-submission step now opens as a modal over the registration form
+  instead of replacing it, so hikers can still see the details they just entered while they pay.
+  The form stays visible in the background, locked with a disabled `fieldset`. Once payment
+  proof is submitted, the modal closes and a new `/confirmation` page shows the "recorded" message
+  (closes #92).
 
 tag: `v0.31.0`
 
