@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.30.0] - 2026-09-01
+
+### Added
+
+- `/payments` now has an inline **Export CSV** button next to Refresh list/Lock — opens a small
+  PIN prompt in place and downloads the same full-dataset CSV as the standalone `/export` page,
+  so committee members no longer have to navigate away to export (closes #90).
+
+tag: `v0.30.0`
+
 ## [0.29.1] - 2026-08-31
 
 ### Changed

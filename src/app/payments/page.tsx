@@ -11,6 +11,10 @@ export default function PaymentsPage() {
   const [registrations, setRegistrations] = useState<PaymentListRow[]>([]);
   const [search, setSearch] = useState("");
   const [markingId, setMarkingId] = useState<string | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportPin, setExportPin] = useState("");
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   async function submitPin(event: FormEvent) {
     event.preventDefault();
@@ -64,6 +68,40 @@ export default function PaymentsPage() {
     }
     setRegistrations([]);
     setUnlocked(false);
+  }
+
+  async function submitExport(event: FormEvent) {
+    event.preventDefault();
+    setExporting(true);
+    setExportError(null);
+    try {
+      const res = await fetch("/api/export/registrations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin: exportPin }),
+      });
+      if (!res.ok) {
+        setExportError(
+          res.status === 429
+            ? "Too many attempts — wait a few minutes and try again."
+            : "Wrong PIN.",
+        );
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `registrations-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setExportOpen(false);
+      setExportPin("");
+    } catch {
+      setExportError("Couldn't reach the server.");
+    } finally {
+      setExporting(false);
+    }
   }
 
   async function markPaid(registrationId: string) {
@@ -156,7 +194,51 @@ export default function PaymentsPage() {
           >
             Lock
           </button>
+          <button
+            data-testid="payments-export-toggle"
+            onClick={() => {
+              setExportOpen((open) => !open);
+              setExportError(null);
+            }}
+            className="rounded-full border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+          >
+            Export CSV
+          </button>
         </div>
+
+        {exportOpen && (
+          <form
+            onSubmit={submitExport}
+            className="mt-3 flex flex-col gap-2 rounded-md border border-zinc-200 p-3"
+          >
+            <p className="text-xs text-zinc-600">
+              Downloads the full dataset, including next-of-kin numbers — re-enter the PIN to
+              confirm.
+            </p>
+            <input
+              data-testid="payments-export-pin-input"
+              type="password"
+              inputMode="numeric"
+              placeholder="PIN"
+              value={exportPin}
+              onChange={(e) => setExportPin(e.target.value)}
+              className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none"
+            />
+            {exportError && (
+              <p data-testid="payments-export-pin-error" className="text-xs text-red-600">
+                {exportError}
+              </p>
+            )}
+            <button
+              data-testid="payments-export-submit"
+              type="submit"
+              disabled={exporting}
+              className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-50"
+            >
+              {exporting ? "Downloading…" : "Download CSV"}
+            </button>
+          </form>
+        )}
 
         <ul className="mt-4 flex flex-col gap-2">
           {filtered.map((row) => (
