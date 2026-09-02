@@ -85,6 +85,7 @@ export async function submitMpesaPayment(
       name: recorded.name,
       phone: payerPhone,
       email: recorded.email ?? undefined,
+      isTestRow: recorded.isTestRow,
     });
   }
 
