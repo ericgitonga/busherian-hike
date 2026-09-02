@@ -277,7 +277,11 @@ export default function RegistrationForm({
           </Field>
           <p data-testid="next-of-kin-hint" className="-mt-2 text-xs text-zinc-500">
             Emergency contact only — please confirm they&apos;re okay being listed. See our{" "}
-            <Link href="/privacy" className="underline hover:text-zinc-700">
+            <Link
+              href="/privacy"
+              data-testid="next-of-kin-privacy-link"
+              className="underline hover:text-zinc-700"
+            >
               Privacy Notice
             </Link>
             .

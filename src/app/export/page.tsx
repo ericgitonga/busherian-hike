@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function ExportPage() {
   const [pin, setPin] = useState("");
@@ -42,6 +43,10 @@ export default function ExportPage() {
   return (
     <div className="flex flex-1 flex-col items-center bg-white px-4 py-12">
       <main className="w-full max-w-sm">
+        <Breadcrumb
+          data-testid="export-breadcrumb"
+          items={[{ label: "Register", href: "/" }, { label: "Export" }]}
+        />
         <h1 className="text-2xl font-semibold text-zinc-900">Export registrations</h1>
         <p className="mt-2 text-sm text-zinc-600">
           Downloads the full dataset, including next-of-kin numbers — for Luchiri and named

@@ -43,7 +43,20 @@ def test_correct_pin_downloads_full_dataset_csv():
         assert "email" in header
 
 
-TESTS = [test_wrong_pin_rejected, test_correct_pin_downloads_full_dataset_csv]
+def test_breadcrumb_links_back_to_home():
+    """Regression coverage for issue #102: /export had no way back to the homepage short of
+    editing the URL."""
+    with browser_page() as page:
+        page.goto("/export")
+        page.get_by_test_id("export-breadcrumb-item").click()
+        page.get_by_test_id("registration-form").wait_for(state="visible")
+
+
+TESTS = [
+    test_wrong_pin_rejected,
+    test_correct_pin_downloads_full_dataset_csv,
+    test_breadcrumb_links_back_to_home,
+]
 
 if __name__ == "__main__":
     run_tests(TESTS)

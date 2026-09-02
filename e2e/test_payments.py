@@ -46,6 +46,15 @@ def test_wrong_pin_rejected():
         assert "wrong" in error.inner_text().lower()
 
 
+def test_breadcrumb_links_back_to_home():
+    """Regression coverage for issue #102: /payments had no way back to the homepage short of
+    editing the URL."""
+    with browser_page() as page:
+        page.goto("/payments")
+        page.get_by_test_id("payments-breadcrumb-item").click()
+        page.get_by_test_id("registration-form").wait_for(state="visible")
+
+
 def test_correct_pin_unlocks_payments():
     pin = _read_organiser_pin()
     with browser_page() as page:
@@ -266,6 +275,7 @@ def test_inline_export_wrong_pin_rejected():
 
 TESTS = [
     test_wrong_pin_rejected,
+    test_breadcrumb_links_back_to_home,
     test_correct_pin_unlocks_payments,
     test_marking_paid_covers_registrant_and_guests,
     test_marking_paid_is_idempotent_and_shown_on_refresh,

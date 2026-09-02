@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { matchScannedId, type CachedAttendee } from "@/lib/checkin-match";
 
 const UNLOCKED_KEY = "checkin-unlocked";
@@ -211,6 +212,10 @@ export default function CheckinPage() {
     return (
       <div className="flex flex-1 flex-col items-center bg-white px-4 py-12">
         <main className="w-full max-w-sm">
+          <Breadcrumb
+            data-testid="checkin-breadcrumb"
+            items={[{ label: "Register", href: "/" }, { label: "Check-in" }]}
+          />
           <h1 className="text-2xl font-semibold text-zinc-900">Organiser check-in</h1>
           <form onSubmit={submitPin} className="mt-6 flex flex-col gap-3">
             <input
@@ -246,6 +251,10 @@ export default function CheckinPage() {
   return (
     <div className="flex flex-1 flex-col items-center bg-white px-4 py-8">
       <main className="w-full max-w-sm">
+        <Breadcrumb
+          data-testid="checkin-breadcrumb"
+          items={[{ label: "Register", href: "/" }, { label: "Check-in" }]}
+        />
         <h1 className="text-xl font-semibold text-zinc-900">Organiser check-in</h1>
         <p data-testid="checkin-summary" className="mt-1 text-sm text-zinc-600">
           {checkedInCount} of {attendees.length} checked in
