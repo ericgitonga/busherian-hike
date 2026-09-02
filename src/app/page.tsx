@@ -1,4 +1,3 @@
-import Link from "next/link";
 import LandingHero from "@/components/LandingHero";
 import PartnershipBanner from "@/components/PartnershipBanner";
 import RegistrationForm from "@/components/RegistrationForm";
@@ -22,15 +21,6 @@ export default async function Home() {
         <RegistrationForm isTestEnvironment={isTestEnvironment} />
         <PartnershipBanner />
         <SponsorStrip />
-        <p className="mt-6 text-center text-xs text-zinc-500">
-          <Link
-            href="/privacy"
-            data-testid="privacy-link"
-            className="underline hover:text-zinc-700"
-          >
-            Privacy Notice
-          </Link>
-        </p>
       </main>
     </div>
   );

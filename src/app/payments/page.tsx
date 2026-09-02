@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Breadcrumb from "@/components/Breadcrumb";
 import type { PaymentListRow } from "@/lib/registrations-store";
 
 export default function PaymentsPage() {
@@ -166,6 +167,10 @@ export default function PaymentsPage() {
     return (
       <div className="flex flex-1 flex-col items-center bg-white px-4 py-12">
         <main className="w-full max-w-sm">
+          <Breadcrumb
+            data-testid="payments-breadcrumb"
+            items={[{ label: "Register", href: "/" }, { label: "Payments" }]}
+          />
           <h1 className="text-2xl font-semibold text-zinc-900">Mark payments</h1>
           <form onSubmit={submitPin} className="mt-6 flex flex-col gap-3">
             <input
@@ -203,6 +208,10 @@ export default function PaymentsPage() {
   return (
     <div className="flex flex-1 flex-col items-center bg-white px-4 py-8">
       <main className="w-full max-w-lg">
+        <Breadcrumb
+          data-testid="payments-breadcrumb"
+          items={[{ label: "Register", href: "/" }, { label: "Payments" }]}
+        />
         <h1 className="text-xl font-semibold text-zinc-900">Mark payments</h1>
         <p className="mt-1 text-sm text-zinc-600">
           Marking someone paid also covers every guest they registered — it decrements the

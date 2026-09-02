@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.34.1] - 2026-09-02
+
+### Changed
+
+- Removed the homepage footer's standalone "Privacy Notice" link — redundant now that the
+  registration form's Acknowledgement and Declaration checkbox links to `/terms`, which covers
+  data protection more comprehensively, right before the submit button. The next-of-kin hint's
+  own `/privacy` link is unaffected.
+
+### Added
+
+- `/payments`, `/export`, and `/checkin` now have a breadcrumb back to the registration page
+  (same `Breadcrumb` component already used on `/terms`/`/privacy`) — previously there was no
+  way back to the homepage short of editing the URL (closes #102).
+
+tag: `v0.34.1`
+
 ## [0.34.0] - 2026-09-02
 
 ### Added
