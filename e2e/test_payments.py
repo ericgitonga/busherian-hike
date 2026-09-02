@@ -103,6 +103,53 @@ def test_marking_paid_is_idempotent_and_shown_on_refresh():
         assert row.get_by_test_id("payment-row-mark-paid").count() == 0
 
 
+def test_resend_sms_button_works_once_mpesa_proof_is_submitted():
+    """Regression coverage for issue #96: the organiser can resend the confirmation SMS on
+    request once a hiker has submitted M-Pesa proof — the button only appears once there's a
+    payer phone to send to."""
+    pin = _read_organiser_pin()
+    unique_name = f"E2E Resend {uuid.uuid4().hex[:8]}"
+    with browser_page() as page:
+        _register_test_hiker(page, unique_name, guest_count="0")
+        page.get_by_test_id("field-payerPhone").fill("0712345678")
+        page.get_by_test_id("field-mpesaCode").fill("SFH3XXXXXX")
+        page.get_by_test_id("submit-mpesa-payment").click()
+        page.wait_for_url("**/confirmation")
+
+        page.goto("/payments")
+        page.get_by_test_id("payments-pin-input").fill(pin)
+        page.get_by_test_id("payments-pin-submit").click()
+        page.get_by_test_id("payments-search").wait_for(state="visible")
+        page.get_by_test_id("payments-search").fill(unique_name)
+
+        row = page.get_by_test_id("payment-row").filter(has_text=unique_name)
+        row.wait_for(state="visible")
+        resend_button = row.get_by_test_id("payment-row-resend-sms")
+        resend_button.wait_for(state="visible")
+        resend_button.click()
+
+        # A test row's resend is a no-op skip (issue #97), not a real send — the button just
+        # needs to round-trip back to its clickable label rather than get stuck "Resending…".
+        resend_button.get_by_text("Resend SMS").wait_for(state="visible")
+
+
+def test_resend_sms_button_absent_before_mpesa_proof_is_submitted():
+    pin = _read_organiser_pin()
+    unique_name = f"E2E NoProof {uuid.uuid4().hex[:8]}"
+    with browser_page() as page:
+        _register_test_hiker(page, unique_name, guest_count="0")
+
+        page.goto("/payments")
+        page.get_by_test_id("payments-pin-input").fill(pin)
+        page.get_by_test_id("payments-pin-submit").click()
+        page.get_by_test_id("payments-search").wait_for(state="visible")
+        page.get_by_test_id("payments-search").fill(unique_name)
+
+        row = page.get_by_test_id("payment-row").filter(has_text=unique_name)
+        row.wait_for(state="visible")
+        assert row.get_by_test_id("payment-row-resend-sms").count() == 0
+
+
 def test_inline_export_downloads_full_dataset_csv():
     """Regression coverage for issue #90: exporting shouldn't require leaving /payments."""
     pin = _read_organiser_pin()
@@ -143,6 +190,8 @@ TESTS = [
     test_correct_pin_unlocks_payments,
     test_marking_paid_covers_registrant_and_guests,
     test_marking_paid_is_idempotent_and_shown_on_refresh,
+    test_resend_sms_button_works_once_mpesa_proof_is_submitted,
+    test_resend_sms_button_absent_before_mpesa_proof_is_submitted,
     test_inline_export_downloads_full_dataset_csv,
     test_inline_export_wrong_pin_rejected,
 ]

@@ -121,6 +121,8 @@ export async function recordMpesaPayment(
     : { status: "not_found" };
 }
 
+export type SmsStatus = "sent" | "failed" | "skipped";
+
 export type PaymentListRow = {
   id: string;
   name: string;
@@ -130,6 +132,7 @@ export type PaymentListRow = {
   paid: boolean;
   mpesaCode: string | null;
   payerPhone: string | null;
+  smsStatus: SmsStatus | null;
 };
 
 // For the PIN-gated "mark paid" list (issue #82) — deliberately narrower than
@@ -140,7 +143,7 @@ export type PaymentListRow = {
 // received.
 export async function getRegistrationsForPayments(): Promise<PaymentListRow[]> {
   const result = await db.execute(
-    `SELECT id, name, school, ticket_type, guest_count, paid, mpesa_code, payer_phone
+    `SELECT id, name, school, ticket_type, guest_count, paid, mpesa_code, payer_phone, sms_status
      FROM registrations ORDER BY name`,
   );
   return result.rows.map((row) => ({
@@ -152,6 +155,61 @@ export async function getRegistrationsForPayments(): Promise<PaymentListRow[]> {
     paid: Number(row.paid) === 1,
     mpesaCode: row.mpesa_code ? String(row.mpesa_code) : null,
     payerPhone: row.payer_phone ? String(row.payer_phone) : null,
+    smsStatus: row.sms_status ? (String(row.sms_status) as SmsStatus) : null,
+  }));
+}
+
+// Written once, right after sendConfirmation's first (and only, per recordMpesaPayment's
+// idempotency guard) real attempt — 'failed' rows are what the retry cron (issue #96,
+// api/cron/retry-failed-sms) and /payments's manual Resend button both act on. A test row is
+// written 'skipped' rather than left NULL, so it's visibly distinct from "never attempted yet"
+// (a registration with no mpesa proof submitted at all) and so the retry cron's
+// `WHERE sms_status = 'failed'` query never touches it.
+export async function updateSmsStatus(
+  registrationId: string,
+  status: SmsStatus,
+): Promise<void> {
+  await db.execute({
+    sql: "UPDATE registrations SET sms_status = ? WHERE id = ?",
+    args: [status, registrationId],
+  });
+}
+
+export type ResendSmsTarget = { name: string; payerPhone: string; isTestRow: boolean };
+
+// Only a row that's actually reached the mpesa-proof step (payer_phone IS NOT NULL) has
+// anything to resend — one that hasn't gets NULL back, same "not ready yet" signal whether the
+// caller is the manual Resend button or the retry cron.
+export async function getResendSmsTarget(
+  registrationId: string,
+): Promise<ResendSmsTarget | null> {
+  const result = await db.execute({
+    sql: `SELECT name, payer_phone, is_test_row FROM registrations
+          WHERE id = ? AND payer_phone IS NOT NULL`,
+    args: [registrationId],
+  });
+  const row = result.rows[0];
+  if (!row) return null;
+  return {
+    name: String(row.name),
+    payerPhone: String(row.payer_phone),
+    isTestRow: Number(row.is_test_row) === 1,
+  };
+}
+
+export type FailedSmsRow = { id: string; name: string; payerPhone: string };
+
+// Backs the retry cron (issue #96) — every row whose most recent send attempt failed. A test
+// row is never 'failed' (confirmation.ts writes 'skipped' for those, see
+// src/app/actions.ts/confirmation.ts), so this can never accidentally spend real float on one.
+export async function getFailedSmsRegistrations(): Promise<FailedSmsRow[]> {
+  const result = await db.execute(
+    "SELECT id, name, payer_phone FROM registrations WHERE sms_status = 'failed'",
+  );
+  return result.rows.map((row) => ({
+    id: String(row.id),
+    name: String(row.name),
+    payerPhone: String(row.payer_phone),
   }));
 }
 
