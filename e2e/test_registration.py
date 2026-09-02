@@ -1,6 +1,19 @@
 """E2E coverage for the registration form (issue #2)."""
 
+import re
+import uuid
+from pathlib import Path
+
 from _common import browser_page, run_tests
+
+ENV_LOCAL = Path(__file__).parent.parent / ".env.local"
+
+
+def _read_organiser_pin() -> str:
+    text = ENV_LOCAL.read_text()
+    match = re.search(r'^ORGANISER_PIN="?([^"\n]+)"?$', text, re.MULTILINE)
+    assert match, "ORGANISER_PIN not found in .env.local — run `vercel env pull .env.local`"
+    return match.group(1)
 
 
 def test_registration_golden_path():
@@ -129,12 +142,50 @@ def test_registration_requires_terms_and_media_consent():
         assert page.get_by_test_id("registration-success").count() == 0
 
 
+def test_cancel_registration_deletes_the_row():
+    """Regression coverage for issue #104: cancelling from the payment modal must actually
+    delete the registration row (verified via /payments, not just that the modal disappears),
+    and the main form's already-typed values must survive the cancel."""
+    pin = _read_organiser_pin()
+    unique_name = f"E2E Cancel {uuid.uuid4().hex[:8]}"
+    with browser_page() as page:
+        page.goto("/")
+        page.get_by_test_id("field-name").fill(unique_name)
+        page.get_by_test_id("field-ageGroup").select_option("30–39")
+        page.get_by_test_id("field-school").select_option("AGHS")
+        page.get_by_test_id("field-yearLeft").fill("2010")
+        page.get_by_test_id("field-guestCount").fill("0")
+        page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
+        page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
+        page.get_by_test_id("field-termsAccepted").check()
+        page.get_by_test_id("media-consent-yes").check()
+        page.get_by_test_id("field-isTestRow").check()
+        page.get_by_test_id("submit-registration").click()
+
+        success = page.get_by_test_id("registration-success")
+        success.wait_for(state="visible")
+
+        page.get_by_test_id("cancel-registration").click()
+        success.wait_for(state="detached")
+
+        page.get_by_test_id("submit-registration").wait_for(state="visible")
+        assert page.get_by_test_id("field-name").input_value() == unique_name
+
+        page.goto("/payments")
+        page.get_by_test_id("payments-pin-input").fill(pin)
+        page.get_by_test_id("payments-pin-submit").click()
+        page.get_by_test_id("payments-search").wait_for(state="visible")
+        page.get_by_test_id("payments-search").fill(unique_name)
+        assert page.get_by_test_id("payment-row").filter(has_text=unique_name).count() == 0
+
+
 TESTS = [
     test_registration_golden_path,
     test_registration_total_fee_covers_guests,
     test_registration_socials_only_ticket_type,
     test_registration_requires_mandatory_fields,
     test_registration_requires_terms_and_media_consent,
+    test_cancel_registration_deletes_the_row,
 ]
 
 if __name__ == "__main__":

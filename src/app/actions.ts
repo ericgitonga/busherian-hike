@@ -7,6 +7,7 @@ import {
 } from "@/lib/registration";
 import { parseMpesaPayment, type MpesaPaymentFieldErrors } from "@/lib/mpesa-payment";
 import {
+  cancelUnpaidRegistration,
   getSlotsRemaining,
   insertRegistration,
   recordMpesaPayment,
@@ -14,6 +15,7 @@ import {
 } from "@/lib/registrations-store";
 import { sendConfirmation } from "@/lib/confirmation";
 import {
+  CANCEL_REGISTRATION_RATE_LIMIT,
   checkRateLimit,
   clientIpFromHeaders,
   MPESA_SUBMIT_RATE_LIMIT,
@@ -97,5 +99,30 @@ export async function submitMpesaPayment(
     );
   }
 
+  return { success: true };
+}
+
+export type CancelRegistrationResult =
+  | { success: true }
+  | { success: false; reason: "rate_limited" };
+
+// Lets a hiker back out of the payment modal (issue #104) instead of just abandoning it —
+// deletes the row inserted by registerHiker rather than leaving an orphaned, unpaid,
+// unconfirmed registration behind forever. Same public-write, no-auth trust model as
+// registerHiker/submitMpesaPayment: the registration id is a random UUID the client already
+// holds from its own registerHiker call, not a guessable/enumerable value, and
+// cancelUnpaidRegistration's own `paid = 0` guard means this can never touch a registration the
+// organiser has already marked paid — always report success either way (no not_found reason)
+// since a hiker double-clicking Cancel, or cancelling a row that's already gone, isn't an error
+// from their point of view.
+export async function cancelRegistration(
+  registrationId: string,
+): Promise<CancelRegistrationResult> {
+  const ip = clientIpFromHeaders(await headers());
+  if (!(await checkRateLimit("cancel-registration", ip, CANCEL_REGISTRATION_RATE_LIMIT))) {
+    return { success: false, reason: "rate_limited" };
+  }
+
+  await cancelUnpaidRegistration(registrationId);
   return { success: true };
 }

@@ -244,6 +244,20 @@ export async function deleteRegistration(registrationId: string): Promise<boolea
   return result.rowsAffected > 0;
 }
 
+// Self-service cancellation from the payment modal (issue #104) — deliberately narrower than
+// deleteRegistration: guarded on `paid = 0` so a hiker can never cancel (and thereby delete) a
+// registration the organiser has already marked paid via /payments, which is a different,
+// PIN-gated action with its own confirmation step. A registration can only ever reach `paid = 1`
+// well after this modal has closed, so this guard is defence-in-depth rather than an expected
+// everyday case.
+export async function cancelUnpaidRegistration(registrationId: string): Promise<boolean> {
+  const result = await db.execute({
+    sql: "DELETE FROM registrations WHERE id = ? AND paid = 0",
+    args: [registrationId],
+  });
+  return result.rowsAffected > 0;
+}
+
 export async function purgeContactFields(): Promise<number> {
   const result = await db.execute(
     `UPDATE registrations

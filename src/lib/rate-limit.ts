@@ -80,3 +80,5 @@ export const REGISTRATION_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSecond
 // Same shape as REGISTRATION_RATE_LIMIT — a public write endpoint with no notion of
 // success/failure worth exempting (issue #70).
 export const MPESA_SUBMIT_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 3600 };
+// Same shape again — cancelling is also a public write endpoint with no auth (issue #104).
+export const CANCEL_REGISTRATION_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 3600 };
