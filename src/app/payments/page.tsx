@@ -12,6 +12,8 @@ export default function PaymentsPage() {
   const [search, setSearch] = useState("");
   const [markingId, setMarkingId] = useState<string | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportPin, setExportPin] = useState("");
   const [exportError, setExportError] = useState<string | null>(null);
@@ -140,6 +142,23 @@ export default function PaymentsPage() {
       }
     } finally {
       setResendingId(null);
+    }
+  }
+
+  async function deleteRegistration(registrationId: string) {
+    setDeletingId(registrationId);
+    try {
+      const res = await fetch("/api/payments/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ registrationId }),
+      });
+      if (res.ok) {
+        setRegistrations((prev) => prev.filter((r) => r.id !== registrationId));
+      }
+    } finally {
+      setDeletingId(null);
+      setConfirmingDeleteId(null);
     }
   }
 
@@ -311,6 +330,34 @@ export default function PaymentsPage() {
                     className="rounded-full bg-foreground px-3 py-1 text-xs font-medium text-background disabled:opacity-50"
                   >
                     {markingId === row.id ? "Marking…" : "Mark paid"}
+                  </button>
+                )}
+                {confirmingDeleteId === row.id ? (
+                  <>
+                    <button
+                      data-testid="payment-row-delete-confirm"
+                      onClick={() => deleteRegistration(row.id)}
+                      disabled={deletingId === row.id}
+                      className="rounded-full bg-red-600 px-3 py-1 text-xs font-medium text-white disabled:opacity-50"
+                    >
+                      {deletingId === row.id ? "Deleting…" : "Confirm delete"}
+                    </button>
+                    <button
+                      data-testid="payment-row-delete-cancel"
+                      onClick={() => setConfirmingDeleteId(null)}
+                      disabled={deletingId === row.id}
+                      className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    data-testid="payment-row-delete"
+                    onClick={() => setConfirmingDeleteId(row.id)}
+                    className="rounded-full border border-red-300 px-3 py-1 text-xs text-red-700 hover:bg-red-50"
+                  >
+                    Delete
                   </button>
                 )}
               </div>

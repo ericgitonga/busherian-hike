@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.34.0] - 2026-09-02
+
+### Added
+
+- `/payments` now has a **Delete** action per row for removing a mistaken/duplicate
+  registration — requires an explicit second click ("Confirm delete") before it takes effect,
+  since it's irreversible unlike Mark paid. Deleting a paid row correctly frees the capacity
+  slots it was consuming, since the public "slots remaining" counter is computed live from
+  `paid = 1` rows on every request (closes #98).
+
+tag: `v0.34.0`
+
 ## [0.33.0] - 2026-09-02
 
 ### Added

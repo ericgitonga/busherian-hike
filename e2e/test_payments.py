@@ -150,6 +150,85 @@ def test_resend_sms_button_absent_before_mpesa_proof_is_submitted():
         assert row.get_by_test_id("payment-row-resend-sms").count() == 0
 
 
+def test_delete_requires_confirmation_and_removes_the_row():
+    """Regression coverage for issue #98: deleting a registration is a two-step action (Delete
+    then Confirm delete), and the row is gone from the list afterward."""
+    pin = _read_organiser_pin()
+    unique_name = f"E2E Delete {uuid.uuid4().hex[:8]}"
+    with browser_page() as page:
+        _register_test_hiker(page, unique_name, guest_count="0")
+
+        page.goto("/payments")
+        page.get_by_test_id("payments-pin-input").fill(pin)
+        page.get_by_test_id("payments-pin-submit").click()
+        page.get_by_test_id("payments-search").wait_for(state="visible")
+        page.get_by_test_id("payments-search").fill(unique_name)
+
+        row = page.get_by_test_id("payment-row").filter(has_text=unique_name)
+        row.wait_for(state="visible")
+        row.get_by_test_id("payment-row-delete").click()
+
+        confirm_button = row.get_by_test_id("payment-row-delete-confirm")
+        confirm_button.wait_for(state="visible")
+        # Clicking Delete alone must not have removed anything yet — only Confirm delete does.
+        assert page.get_by_test_id("payment-row").filter(has_text=unique_name).count() == 1
+        confirm_button.click()
+
+        page.get_by_test_id("payment-row").filter(has_text=unique_name).wait_for(state="detached")
+
+
+def test_delete_cancel_leaves_the_row_in_place():
+    pin = _read_organiser_pin()
+    unique_name = f"E2E DeleteCancel {uuid.uuid4().hex[:8]}"
+    with browser_page() as page:
+        _register_test_hiker(page, unique_name, guest_count="0")
+
+        page.goto("/payments")
+        page.get_by_test_id("payments-pin-input").fill(pin)
+        page.get_by_test_id("payments-pin-submit").click()
+        page.get_by_test_id("payments-search").wait_for(state="visible")
+        page.get_by_test_id("payments-search").fill(unique_name)
+
+        row = page.get_by_test_id("payment-row").filter(has_text=unique_name)
+        row.wait_for(state="visible")
+        row.get_by_test_id("payment-row-delete").click()
+        row.get_by_test_id("payment-row-delete-cancel").click()
+
+        row.get_by_test_id("payment-row-delete").wait_for(state="visible")
+
+
+def test_deleting_a_paid_registration_frees_its_capacity():
+    """Regression coverage for issue #98's capacity requirement: deleting a paid registration
+    must free up the slots it was consuming, not leave the public counter permanently short."""
+    pin = _read_organiser_pin()
+    unique_name = f"E2E DeleteCapacity {uuid.uuid4().hex[:8]}"
+    with browser_page() as page:
+        _register_test_hiker(page, unique_name, guest_count="1")
+
+        before = page.request.get("/api/capacity").json()["remaining"]
+
+        page.goto("/payments")
+        page.get_by_test_id("payments-pin-input").fill(pin)
+        page.get_by_test_id("payments-pin-submit").click()
+        page.get_by_test_id("payments-search").wait_for(state="visible")
+        page.get_by_test_id("payments-search").fill(unique_name)
+
+        row = page.get_by_test_id("payment-row").filter(has_text=unique_name)
+        row.wait_for(state="visible")
+        row.get_by_test_id("payment-row-mark-paid").click()
+        row.get_by_test_id("payment-row-paid-badge").wait_for(state="visible")
+
+        after_paid = page.request.get("/api/capacity").json()["remaining"]
+        assert before - after_paid == 2  # the registrant plus their 1 guest
+
+        row.get_by_test_id("payment-row-delete").click()
+        row.get_by_test_id("payment-row-delete-confirm").click()
+        page.get_by_test_id("payment-row").filter(has_text=unique_name).wait_for(state="detached")
+
+        after_delete = page.request.get("/api/capacity").json()["remaining"]
+        assert after_delete == before  # the 2 slots are freed back up
+
+
 def test_inline_export_downloads_full_dataset_csv():
     """Regression coverage for issue #90: exporting shouldn't require leaving /payments."""
     pin = _read_organiser_pin()
@@ -192,6 +271,9 @@ TESTS = [
     test_marking_paid_is_idempotent_and_shown_on_refresh,
     test_resend_sms_button_works_once_mpesa_proof_is_submitted,
     test_resend_sms_button_absent_before_mpesa_proof_is_submitted,
+    test_delete_requires_confirmation_and_removes_the_row,
+    test_delete_cancel_leaves_the_row_in_place,
+    test_deleting_a_paid_registration_frees_its_capacity,
     test_inline_export_downloads_full_dataset_csv,
     test_inline_export_wrong_pin_rejected,
 ]
