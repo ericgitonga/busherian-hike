@@ -5,35 +5,38 @@ import {
   parseRegistration,
   type RegistrationFieldErrors,
 } from "@/lib/registration";
-import { parseMpesaPayment, type MpesaPaymentFieldErrors } from "@/lib/mpesa-payment";
 import {
-  cancelUnpaidRegistration,
+  parseCompleteRegistration,
+  type CompleteRegistrationFieldErrors,
+} from "@/lib/complete-registration";
+import {
   getSlotsRemaining,
-  insertRegistration,
-  recordMpesaPayment,
+  insertCompleteRegistration,
   updateSmsStatus,
 } from "@/lib/registrations-store";
 import { sendConfirmation } from "@/lib/confirmation";
 import {
-  CANCEL_REGISTRATION_RATE_LIMIT,
   checkRateLimit,
   clientIpFromHeaders,
-  MPESA_SUBMIT_RATE_LIMIT,
+  COMPLETE_REGISTRATION_RATE_LIMIT,
   REGISTRATION_RATE_LIMIT,
 } from "@/lib/rate-limit";
 
-export type RegisterHikerResult =
-  | { success: true; id: string }
+export type ValidateRegistrationResult =
+  | { success: true }
   | { success: false; reason: "validation"; errors: RegistrationFieldErrors }
   | { success: false; reason: "full" }
   | { success: false; reason: "rate_limited" };
 
-export async function registerHiker(
+// The "Register" click (issue #106) — validates the main form and checks capacity, but writes
+// nothing to the database. It only ever gates whether the payment modal opens; the modal itself
+// holds every already-typed field in client state until (and only until) the M-Pesa proof is
+// also submitted, so abandoning the flow anywhere before that point leaves nothing behind. This
+// is a client-experience gate, not a security boundary — completeRegistration below re-validates
+// everything from scratch rather than trusting that this step already ran.
+export async function validateRegistration(
   input: unknown,
-): Promise<RegisterHikerResult> {
-  // Unlike the PIN routes, every submission counts here (not just "wrong" ones) — there's no
-  // notion of a correct/incorrect registration, only real vs. spam, so the flood itself is what
-  // this guards against.
+): Promise<ValidateRegistrationResult> {
   const ip = clientIpFromHeaders(await headers());
   if (!(await checkRateLimit("register", ip, REGISTRATION_RATE_LIMIT))) {
     return { success: false, reason: "rate_limited" };
@@ -48,81 +51,53 @@ export async function registerHiker(
     return { success: false, reason: "full" };
   }
 
-  const id = await insertRegistration(result.data);
-  return { success: true, id };
+  return { success: true };
 }
 
-export type SubmitMpesaPaymentResult =
+export type CompleteRegistrationResult =
   | { success: true }
-  | { success: false; reason: "validation"; errors: MpesaPaymentFieldErrors }
-  | { success: false; reason: "not_found" }
+  | { success: false; reason: "validation"; errors: CompleteRegistrationFieldErrors }
+  | { success: false; reason: "full" }
   | { success: false; reason: "rate_limited" };
 
-// Direct M-Pesa P2P (issue #70) has no webhook, so this is the payment-confirmation entry point
-// instead — the hiker's own proof-of-payment submission, not machine-verified against Safaricom,
-// same as career-transition/intake's mpesa_code. Idempotent by construction
-// (recordMpesaPayment only fires sendConfirmation once, on the row's first submission).
-export async function submitMpesaPayment(
+// The M-Pesa proof submit (issue #106) — the *only* place a registration row is ever written.
+// Re-validates every field from scratch (both the main registration fields and the M-Pesa proof,
+// via the combined schema) rather than trusting validateRegistration's earlier pass, then
+// re-checks capacity (slots could have filled between the two steps), then performs the single
+// insert with mpesa_code/payer_phone already set, then fires the confirmation immediately.
+export async function completeRegistration(
   input: unknown,
-): Promise<SubmitMpesaPaymentResult> {
+): Promise<CompleteRegistrationResult> {
   const ip = clientIpFromHeaders(await headers());
-  if (!(await checkRateLimit("mpesa-submit", ip, MPESA_SUBMIT_RATE_LIMIT))) {
+  if (!(await checkRateLimit("complete-registration", ip, COMPLETE_REGISTRATION_RATE_LIMIT))) {
     return { success: false, reason: "rate_limited" };
   }
 
-  const result = parseMpesaPayment(input);
+  const result = parseCompleteRegistration(input);
   if (!result.success) {
     return { success: false, reason: "validation", errors: result.errors };
   }
 
-  const { registrationId, payerPhone, mpesaCode } = result.data;
-  const recorded = await recordMpesaPayment(registrationId, mpesaCode, payerPhone);
-
-  if (recorded.status === "not_found") {
-    return { success: false, reason: "not_found" };
+  if ((await getSlotsRemaining()) <= 0) {
+    return { success: false, reason: "full" };
   }
 
-  if (recorded.status === "recorded") {
-    const confirmationResult = await sendConfirmation({
-      registrationId,
-      name: recorded.name,
-      phone: payerPhone,
-      email: recorded.email ?? undefined,
-      isTestRow: recorded.isTestRow,
-    });
-    // 'failed' here is what api/cron/retry-failed-sms and /payments's Resend button both act
-    // on (issue #96) — a real send attempt that came back false, as opposed to a test row's
-    // deliberate 'skipped' (never attempted at all, see confirmation.ts).
-    await updateSmsStatus(
-      registrationId,
-      recorded.isTestRow ? "skipped" : confirmationResult.smsSent ? "sent" : "failed",
-    );
-  }
+  const row = await insertCompleteRegistration(result.data);
 
-  return { success: true };
-}
+  const confirmationResult = await sendConfirmation({
+    registrationId: row.id,
+    name: row.name,
+    phone: result.data.payerPhone,
+    email: row.email ?? undefined,
+    isTestRow: row.isTestRow,
+  });
+  // 'failed' here is what api/cron/retry-failed-sms and /payments's Resend button both act on
+  // (issue #96) — a real send attempt that came back false, as opposed to a test row's
+  // deliberate 'skipped' (never attempted at all, see confirmation.ts).
+  await updateSmsStatus(
+    row.id,
+    row.isTestRow ? "skipped" : confirmationResult.smsSent ? "sent" : "failed",
+  );
 
-export type CancelRegistrationResult =
-  | { success: true }
-  | { success: false; reason: "rate_limited" };
-
-// Lets a hiker back out of the payment modal (issue #104) instead of just abandoning it —
-// deletes the row inserted by registerHiker rather than leaving an orphaned, unpaid,
-// unconfirmed registration behind forever. Same public-write, no-auth trust model as
-// registerHiker/submitMpesaPayment: the registration id is a random UUID the client already
-// holds from its own registerHiker call, not a guessable/enumerable value, and
-// cancelUnpaidRegistration's own `paid = 0` guard means this can never touch a registration the
-// organiser has already marked paid — always report success either way (no not_found reason)
-// since a hiker double-clicking Cancel, or cancelling a row that's already gone, isn't an error
-// from their point of view.
-export async function cancelRegistration(
-  registrationId: string,
-): Promise<CancelRegistrationResult> {
-  const ip = clientIpFromHeaders(await headers());
-  if (!(await checkRateLimit("cancel-registration", ip, CANCEL_REGISTRATION_RATE_LIMIT))) {
-    return { success: false, reason: "rate_limited" };
-  }
-
-  await cancelUnpaidRegistration(registrationId);
   return { success: true };
 }

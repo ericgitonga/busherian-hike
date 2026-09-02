@@ -89,13 +89,14 @@ def test_registration_throttled_after_repeated_submissions():
 
 
 def test_mpesa_submit_throttled_after_repeated_submissions():
-    # Each iteration needs its own fresh, first-time registration to submit mpesa payment
-    # proof against (recordMpesaPayment's idempotency guard would otherwise make submissions
-    # 2-6 no-ops on the *data* side, though they'd still count against the rate limit). But
-    # registration has its own 5/hour limit — reusing one identity for both calls would trip
-    # *that* limit first and never reach the mpesa-submit limit this test is actually after. So
-    # each registration gets its own throwaway identity, while every mpesa-submit call
-    # deliberately shares one fixed identity — that's the bucket being driven to its limit.
+    # Each iteration re-fills the main form since completeRegistration (issue #106) validates
+    # and inserts both the registration and the M-Pesa proof together in one call — there's no
+    # longer a separate pre-existing row to submit proof "against". Registration's own
+    # validate-only step (validateRegistration) has its own 5/hour limit — reusing one identity
+    # for both calls would trip *that* limit first and never reach the complete-registration
+    # limit this test is actually after. So each iteration's validate step gets its own
+    # throwaway identity, while every completeRegistration call deliberately shares one fixed
+    # identity — that's the bucket being driven to its limit.
     with browser_page() as page:
         mpesa_submit_ip = synthetic_client_id()
         last_state = None

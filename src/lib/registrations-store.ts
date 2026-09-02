@@ -1,18 +1,34 @@
 import { randomUUID } from "node:crypto";
 import { db } from "@/lib/db";
 import { computeSlotsRemaining } from "@/lib/capacity";
-import type { RegistrationInput } from "@/lib/registration";
+import type { CompleteRegistrationInput } from "@/lib/complete-registration";
 
-export async function insertRegistration(
-  input: RegistrationInput,
-): Promise<string> {
+export type CompletedRegistration = {
+  id: string;
+  name: string;
+  email: string | null;
+  isTestRow: boolean;
+};
+
+// The only place a registration row is ever written (issue #106) — mpesa_code/payer_phone are
+// set at insert time, not via a later UPDATE, since the M-Pesa proof submit is now the single
+// point a write happens at all. Abandoning the flow anywhere before that point (closing the
+// tab, never sending the money) therefore leaves nothing behind to clean up. Unlike the old
+// two-step insert-then-update flow, there's no idempotency guard against a genuine double-submit
+// creating two rows — there's no existing row to de-duplicate against here, only the client's
+// own disable-while-submitting button state, the same level of protection a plain insert
+// (registerHiker's, before this issue) always had.
+export async function insertCompleteRegistration(
+  input: CompleteRegistrationInput,
+): Promise<CompletedRegistration> {
   const id = randomUUID();
   await db.execute({
     sql: `INSERT INTO registrations (
       id, name, age_group, school, year_left, guest_count,
       next_of_kin_name, next_of_kin_contact, needs_bus,
-      ticket_type, email, is_test_row, terms_accepted, media_consent
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ticket_type, email, is_test_row, terms_accepted, media_consent,
+      mpesa_code, payer_phone
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       id,
       input.name,
@@ -28,9 +44,11 @@ export async function insertRegistration(
       input.isTestRow ? 1 : 0,
       input.termsAccepted ? 1 : 0,
       input.mediaConsent,
+      input.mpesaCode,
+      input.payerPhone,
     ],
   });
-  return id;
+  return { id, name: input.name, email: input.email || null, isTestRow: !!input.isTestRow };
 }
 
 // Headcount, not row count (issue #82) — CAPACITY_CAP is confirmed as 100 people
@@ -78,49 +96,6 @@ export async function markCheckedIn(registrationId: string): Promise<boolean> {
   return result.rowsAffected > 0;
 }
 
-export type RecordMpesaPaymentResult =
-  | { status: "recorded"; name: string; email: string | null; isTestRow: boolean }
-  | { status: "already_submitted" }
-  | { status: "not_found" };
-
-// Idempotent, same reasoning as markCheckedIn: guards on mpesa_code IS NULL so a duplicate
-// submission (retry, double-tap) never overwrites the first code or re-triggers
-// sendConfirmation — "already_submitted" and a genuinely unknown id are distinguished only so
-// the caller can skip re-sending confirmation either way, not to tell a user which happened
-// (issue #70).
-export async function recordMpesaPayment(
-  registrationId: string,
-  mpesaCode: string,
-  payerPhone: string,
-): Promise<RecordMpesaPaymentResult> {
-  const updateResult = await db.execute({
-    sql: `UPDATE registrations SET mpesa_code = ?, payer_phone = ?
-          WHERE id = ? AND mpesa_code IS NULL`,
-    args: [mpesaCode, payerPhone, registrationId],
-  });
-
-  if (updateResult.rowsAffected > 0) {
-    const row = await db.execute({
-      sql: "SELECT name, email, is_test_row FROM registrations WHERE id = ?",
-      args: [registrationId],
-    });
-    return {
-      status: "recorded",
-      name: String(row.rows[0].name),
-      email: row.rows[0].email ? String(row.rows[0].email) : null,
-      isTestRow: Number(row.rows[0].is_test_row) === 1,
-    };
-  }
-
-  const existing = await db.execute({
-    sql: "SELECT 1 FROM registrations WHERE id = ?",
-    args: [registrationId],
-  });
-  return existing.rows.length > 0
-    ? { status: "already_submitted" }
-    : { status: "not_found" };
-}
-
 export type SmsStatus = "sent" | "failed" | "skipped";
 
 export type PaymentListRow = {
@@ -159,8 +134,8 @@ export async function getRegistrationsForPayments(): Promise<PaymentListRow[]> {
   }));
 }
 
-// Written once, right after sendConfirmation's first (and only, per recordMpesaPayment's
-// idempotency guard) real attempt — 'failed' rows are what the retry cron (issue #96,
+// Written once, right after sendConfirmation's one real attempt at insert time (issue #106) —
+// 'failed' rows are what the retry cron (issue #96,
 // api/cron/retry-failed-sms) and /payments's manual Resend button both act on. A test row is
 // written 'skipped' rather than left NULL, so it's visibly distinct from "never attempted yet"
 // (a registration with no mpesa proof submitted at all) and so the retry cron's
@@ -239,20 +214,6 @@ export async function getAllRegistrations(): Promise<Record<string, unknown>[]> 
 export async function deleteRegistration(registrationId: string): Promise<boolean> {
   const result = await db.execute({
     sql: "DELETE FROM registrations WHERE id = ?",
-    args: [registrationId],
-  });
-  return result.rowsAffected > 0;
-}
-
-// Self-service cancellation from the payment modal (issue #104) — deliberately narrower than
-// deleteRegistration: guarded on `paid = 0` so a hiker can never cancel (and thereby delete) a
-// registration the organiser has already marked paid via /payments, which is a different,
-// PIN-gated action with its own confirmation step. A registration can only ever reach `paid = 1`
-// well after this modal has closed, so this guard is defence-in-depth rather than an expected
-// everyday case.
-export async function cancelUnpaidRegistration(registrationId: string): Promise<boolean> {
-  const result = await db.execute({
-    sql: "DELETE FROM registrations WHERE id = ? AND paid = 0",
     args: [registrationId],
   });
   return result.rowsAffected > 0;

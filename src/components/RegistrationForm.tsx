@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { cancelRegistration, registerHiker, submitMpesaPayment } from "@/app/actions";
+import { completeRegistration, validateRegistration } from "@/app/actions";
 import {
   AGE_GROUP_OPTIONS,
   HIKE_ONLY_INCLUSIONS,
@@ -13,7 +13,7 @@ import {
   TICKET_TYPE_OPTIONS,
   type RegistrationFieldErrors,
 } from "@/lib/registration";
-import type { MpesaPaymentFieldErrors } from "@/lib/mpesa-payment";
+import { MPESA_FIELD_KEYS } from "@/lib/complete-registration";
 import {
   MPESA_RECIPIENT_NAME,
   MPESA_RECIPIENT_PHONE,
@@ -66,6 +66,8 @@ function Field({
 const inputClass =
   "rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-900 focus:border-zinc-500 focus:outline-none";
 
+type MpesaFieldErrors = Partial<Record<(typeof MPESA_FIELD_KEYS)[number], string>>;
+
 export default function RegistrationForm({
   isTestEnvironment,
 }: {
@@ -78,15 +80,12 @@ export default function RegistrationForm({
   const [submitted, setSubmitted] = useState(false);
   const [full, setFull] = useState(false);
   const [rateLimited, setRateLimited] = useState(false);
-  const [registrationId, setRegistrationId] = useState<string | null>(null);
 
   const [mpesaValues, setMpesaValues] = useState(initialMpesaValues);
-  const [mpesaErrors, setMpesaErrors] = useState<MpesaPaymentFieldErrors>({});
+  const [mpesaErrors, setMpesaErrors] = useState<MpesaFieldErrors>({});
   const [mpesaSubmitting, setMpesaSubmitting] = useState(false);
   const [mpesaRateLimited, setMpesaRateLimited] = useState(false);
   const [mpesaGenericError, setMpesaGenericError] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
-  const [cancelRateLimited, setCancelRateLimited] = useState(false);
 
   function update<K extends FieldName>(field: K, value: (typeof initialValues)[K]) {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -99,12 +98,16 @@ export default function RegistrationForm({
     setMpesaValues((prev) => ({ ...prev, [field]: value }));
   }
 
+  // Validation-only (issue #106) — writes nothing to the database. Opening the payment modal on
+  // success is purely a client-side transition; the row this registration will eventually
+  // become doesn't exist yet, and won't until handleMpesaSubmit's completeRegistration call
+  // below actually succeeds.
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitting(true);
     setErrors({});
 
-    const result = await registerHiker({
+    const result = await validateRegistration({
       ...values,
       yearLeft: values.yearLeft,
       guestCount: values.guestCount,
@@ -124,20 +127,24 @@ export default function RegistrationForm({
       return;
     }
 
-    setRegistrationId(result.id);
     setSubmitted(true);
   }
 
+  // The only place a write happens (issue #106) — completeRegistration validates and inserts
+  // the main form's fields together with the M-Pesa proof in one call, so there was never a
+  // registration row for the modal to reference before now.
   async function handleMpesaSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!registrationId) return;
 
     setMpesaSubmitting(true);
     setMpesaErrors({});
     setMpesaGenericError(false);
 
-    const result = await submitMpesaPayment({
-      registrationId,
+    const result = await completeRegistration({
+      ...values,
+      yearLeft: values.yearLeft,
+      guestCount: values.guestCount,
+      email: values.email,
       payerPhone: mpesaValues.payerPhone,
       mpesaCode: mpesaValues.mpesaCode,
     });
@@ -148,7 +155,28 @@ export default function RegistrationForm({
       if (result.reason === "rate_limited") {
         setMpesaRateLimited(true);
       } else if (result.reason === "validation") {
-        setMpesaErrors(result.errors);
+        // Splits the combined error object between the modal's own fields and the main form's —
+        // a payerPhone/mpesaCode error is the expected case and stays in the modal; a main-field
+        // error here means validateRegistration's earlier pass and this one disagreed (a race or
+        // tampered request, not normal use), so the modal closes and the main form re-opens
+        // (its fieldset is only disabled while `submitted` is true) to show it.
+        const mpesaFieldErrors: MpesaFieldErrors = {};
+        const mainFieldErrors: RegistrationFieldErrors = {};
+        for (const [key, message] of Object.entries(result.errors)) {
+          if ((MPESA_FIELD_KEYS as readonly string[]).includes(key)) {
+            mpesaFieldErrors[key as keyof MpesaFieldErrors] = message;
+          } else {
+            mainFieldErrors[key as keyof RegistrationFieldErrors] = message;
+          }
+        }
+        setMpesaErrors(mpesaFieldErrors);
+        if (Object.keys(mainFieldErrors).length > 0) {
+          setErrors(mainFieldErrors);
+          setSubmitted(false);
+        }
+      } else if (result.reason === "full") {
+        setSubmitted(false);
+        setFull(true);
       } else {
         setMpesaGenericError(true);
       }
@@ -158,28 +186,12 @@ export default function RegistrationForm({
     router.push("/confirmation");
   }
 
-  // The already-typed values in `values` (the main form) are deliberately left in place — a
-  // hiker who cancels to tweak something (e.g. their ticket type) before trying again shouldn't
-  // have to retype the whole form, only the mpesa-proof fields, which no longer refer to
-  // anything now that the row behind them is gone. Only closes the modal on actual success —
-  // a rate-limited attempt leaves it open so the row (still real on the server) isn't
-  // silently orphaned behind a UI that already looks cancelled.
-  async function handleCancel() {
-    if (!registrationId) return;
-    setCancelling(true);
-    setCancelRateLimited(false);
-
-    const result = await cancelRegistration(registrationId);
-
-    setCancelling(false);
-
-    if (!result.success) {
-      setCancelRateLimited(true);
-      return;
-    }
-
+  // Nothing has been written yet at this point (issue #106), so cancelling is just a client-side
+  // reset — no server round-trip needed. The main form's already-typed values are deliberately
+  // left in place: a hiker cancelling to tweak one field (e.g. ticket type) shouldn't have to
+  // retype everything, only the mpesa-proof fields.
+  function handleCancel() {
     setSubmitted(false);
-    setRegistrationId(null);
     setMpesaValues(initialMpesaValues);
     setMpesaErrors({});
     setMpesaRateLimited(false);
@@ -541,23 +553,13 @@ export default function RegistrationForm({
               </button>
             </form>
 
-            {cancelRateLimited && (
-              <p
-                data-testid="cancel-rate-limited"
-                className="mt-3 text-xs font-normal text-red-600"
-                role="alert"
-              >
-                Too many attempts. Please wait a bit and try again.
-              </p>
-            )}
             <button
               data-testid="cancel-registration"
               type="button"
               onClick={handleCancel}
-              disabled={cancelling}
-              className="mt-3 text-xs font-medium text-green-900 underline hover:text-green-700 disabled:opacity-50"
+              className="mt-3 text-xs font-medium text-green-900 underline hover:text-green-700"
             >
-              {cancelling ? "Cancelling…" : "Changed your mind? Cancel registration"}
+              Changed your mind? Cancel registration
             </button>
           </div>
         </div>
