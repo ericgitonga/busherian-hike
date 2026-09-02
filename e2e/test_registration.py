@@ -13,6 +13,8 @@ def test_registration_golden_path():
         page.get_by_test_id("field-guestCount").fill("1")
         page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
         page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
+        page.get_by_test_id("field-termsAccepted").check()
+        page.get_by_test_id("media-consent-yes").check()
         page.get_by_test_id("field-isTestRow").check()
         page.get_by_test_id("submit-registration").click()
 
@@ -46,6 +48,8 @@ def test_registration_total_fee_covers_guests():
         page.get_by_test_id("field-guestCount").fill("2")
         page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
         page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
+        page.get_by_test_id("field-termsAccepted").check()
+        page.get_by_test_id("media-consent-yes").check()
         page.get_by_test_id("field-isTestRow").check()
         page.get_by_test_id("submit-registration").click()
 
@@ -67,6 +71,8 @@ def test_registration_socials_only_ticket_type():
         page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
         page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
         page.get_by_test_id("ticket-type-socials_only").check()
+        page.get_by_test_id("field-termsAccepted").check()
+        page.get_by_test_id("media-consent-no").check()
         page.get_by_test_id("field-isTestRow").check()
         page.get_by_test_id("submit-registration").click()
 
@@ -94,11 +100,41 @@ def test_registration_requires_mandatory_fields():
         assert page.get_by_test_id("registration-success").count() == 0
 
 
+def test_registration_requires_terms_and_media_consent():
+    """Regression coverage for issue #94: registering without ticking the Acknowledgement and
+    Declaration checkbox, or without picking a Photograph and Media Consent option, must fail
+    validation rather than silently succeed."""
+    with browser_page() as page:
+        page.goto("/")
+        page.get_by_test_id("field-name").fill("Wanjiru Kamau")
+        page.get_by_test_id("field-ageGroup").select_option("30–39")
+        page.get_by_test_id("field-school").select_option("AGHS")
+        page.get_by_test_id("field-yearLeft").fill("2010")
+        page.get_by_test_id("field-guestCount").fill("1")
+        page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
+        page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
+        page.get_by_test_id("field-isTestRow").check()
+        page.get_by_test_id("submit-registration").click()
+
+        terms_error = page.get_by_test_id("field-termsAccepted").locator(
+            "xpath=ancestor::div[contains(@class, 'flex-col')][1]//span[@role='alert']"
+        )
+        terms_error.wait_for(state="visible")
+
+        media_error = page.get_by_test_id("field-mediaConsent").locator(
+            "xpath=descendant::span[@role='alert']"
+        )
+        media_error.wait_for(state="visible")
+
+        assert page.get_by_test_id("registration-success").count() == 0
+
+
 TESTS = [
     test_registration_golden_path,
     test_registration_total_fee_covers_guests,
     test_registration_socials_only_ticket_type,
     test_registration_requires_mandatory_fields,
+    test_registration_requires_terms_and_media_consent,
 ]
 
 if __name__ == "__main__":

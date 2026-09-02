@@ -7,6 +7,7 @@ import { registerHiker, submitMpesaPayment } from "@/app/actions";
 import {
   AGE_GROUP_OPTIONS,
   HIKE_ONLY_INCLUSIONS,
+  MEDIA_CONSENT_VALUES,
   SCHOOL_OPTIONS,
   SHARED_TICKET_INCLUSIONS,
   TICKET_TYPE_OPTIONS,
@@ -33,6 +34,8 @@ const initialValues = {
   needsBus: false,
   ticketType: "hike_and_socials" as (typeof TICKET_TYPE_OPTIONS)[number]["value"],
   email: "",
+  termsAccepted: false,
+  mediaConsent: "" as "" | (typeof MEDIA_CONSENT_VALUES)[number],
   isTestRow: false,
 };
 
@@ -319,6 +322,85 @@ export default function RegistrationForm({
               onChange={(e) => update("email", e.target.value)}
             />
           </Field>
+
+          <div className="flex flex-col gap-2 border-t border-zinc-200 pt-4">
+            <h2 className="text-sm font-semibold text-zinc-900">
+              Acknowledgement and Declaration
+            </h2>
+            <label className="flex items-start gap-2 text-sm font-normal text-zinc-900">
+              <input
+                data-testid="field-termsAccepted"
+                type="checkbox"
+                className="mt-0.5"
+                checked={values.termsAccepted}
+                onChange={(e) => update("termsAccepted", e.target.checked)}
+              />
+              <span>
+                I have read and agree to the{" "}
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  className="underline hover:text-zinc-700"
+                >
+                  Terms and Conditions, Participant Waiver and Data Protection Notice
+                </Link>
+                .
+              </span>
+            </label>
+            {errors.termsAccepted && (
+              <span className="text-xs font-normal text-red-600" role="alert">
+                {errors.termsAccepted}
+              </span>
+            )}
+          </div>
+
+          <fieldset
+            data-testid="field-mediaConsent"
+            className="flex flex-col gap-1 text-sm font-medium text-zinc-900"
+          >
+            <legend className="mb-1">Photograph and Media Consent</legend>
+            <p className="mb-1 text-xs font-normal text-zinc-500">
+              Please select one. Declining does not prevent you from taking part.
+            </p>
+            <label className="flex items-start gap-2 font-normal">
+              <input
+                data-testid="media-consent-yes"
+                type="radio"
+                name="mediaConsent"
+                value="yes"
+                className="mt-0.5"
+                checked={values.mediaConsent === "yes"}
+                onChange={() => update("mediaConsent", "yes")}
+              />
+              <span>
+                <strong>Yes — I consent.</strong> I expressly consent to the Organiser using
+                photographs, video recordings and/or audio recordings in which I am identifiable
+                for the promotional and communications purposes described in the Terms &amp;
+                Conditions.
+              </span>
+            </label>
+            <label className="flex items-start gap-2 font-normal">
+              <input
+                data-testid="media-consent-no"
+                type="radio"
+                name="mediaConsent"
+                value="no"
+                className="mt-0.5"
+                checked={values.mediaConsent === "no"}
+                onChange={() => update("mediaConsent", "no")}
+              />
+              <span>
+                <strong>No — I do not consent.</strong> I do not consent to the use of
+                identifiable photographs, video recordings or audio recordings of me for
+                promotional or marketing purposes.
+              </span>
+            </label>
+            {errors.mediaConsent && (
+              <span className="text-xs font-normal text-red-600" role="alert">
+                {errors.mediaConsent}
+              </span>
+            )}
+          </fieldset>
 
           {isTestEnvironment && (
             <label className="flex items-center gap-2 text-sm font-medium text-amber-700">

@@ -12,6 +12,8 @@ const validInput = {
   needsBus: true,
   ticketType: "hike_and_socials",
   email: "",
+  termsAccepted: true,
+  mediaConsent: "yes",
 };
 
 describe("parseRegistration", () => {
@@ -89,6 +91,35 @@ describe("parseRegistration", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.errors.guestCount).toBeDefined();
+    }
+  });
+
+  it("accepts a registration that declines media consent", () => {
+    const result = parseRegistration({ ...validInput, mediaConsent: "no" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an unchecked terms acceptance", () => {
+    const result = parseRegistration({ ...validInput, termsAccepted: false });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.errors.termsAccepted).toBeDefined();
+    }
+  });
+
+  it("rejects a missing media consent choice", () => {
+    const result = parseRegistration({ ...validInput, mediaConsent: undefined });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.errors.mediaConsent).toBeDefined();
+    }
+  });
+
+  it("rejects an invalid media consent value", () => {
+    const result = parseRegistration({ ...validInput, mediaConsent: "maybe" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.errors.mediaConsent).toBeDefined();
     }
   });
 });

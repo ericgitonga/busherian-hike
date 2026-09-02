@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.32.0] - 2026-09-02
+
+### Added
+
+- New `/terms` page reproduces sections 1-18 of the client's "Terms and Conditions, Participant
+  Waiver and Data Protection Notice" document. The registration form now has an "Acknowledgement
+  and Declaration" checkbox (required, links to `/terms`) and a "Photograph and Media Consent"
+  Yes/No choice (required, no default, declining doesn't block registration) — both stored on
+  the registration row (`terms_accepted`, `media_consent`) and included in the organiser CSV
+  export (closes #94).
+
+tag: `v0.32.0`
+
 ## [0.31.0] - 2026-09-01
 
 ### Changed

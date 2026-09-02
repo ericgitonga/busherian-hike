@@ -39,6 +39,8 @@ export const AGE_GROUP_OPTIONS = [
 
 export const KENYAN_PHONE_REGEX = /^(?:\+254|0)[17]\d{8}$/;
 
+export const MEDIA_CONSENT_VALUES = ["yes", "no"] as const;
+
 const currentYear = new Date().getUTCFullYear();
 
 export const registrationSchema = z.object({
@@ -71,6 +73,16 @@ export const registrationSchema = z.object({
   email: z
     .union([z.literal(""), z.email("Enter a valid email address")])
     .optional(),
+  // Gates on the Acknowledgement and Declaration checkbox (issue #94) — the participant must
+  // tick it themselves, so a missing/false value is a validation failure, not a default.
+  termsAccepted: z
+    .boolean()
+    .refine((v) => v === true, "You must accept the Terms and Conditions to register"),
+  // Deliberately no default — the source waiver's own consent block ("Please select one")
+  // requires an explicit Yes/No choice, not a pre-checked option either way (issue #94).
+  mediaConsent: z.enum(MEDIA_CONSENT_VALUES, {
+    message: "Select whether you consent to photo/media use",
+  }),
   // Only ever settable from the UI when RegistrationForm's isTestEnvironment prop is true (see
   // src/app/page.tsx) — real production submissions always default to false. Lets
   // scripts/cleanup-test-registrations.mjs remove marked rows without touching genuine ones

@@ -29,6 +29,8 @@ def _register_test_hiker(page, name: str, guest_count: str) -> None:
     page.get_by_test_id("field-guestCount").fill(guest_count)
     page.get_by_test_id("field-nextOfKinName").fill("Kamau Njoroge")
     page.get_by_test_id("field-nextOfKinContact").fill("0712345678")
+    page.get_by_test_id("field-termsAccepted").check()
+    page.get_by_test_id("media-consent-yes").check()
     page.get_by_test_id("field-isTestRow").check()
     page.get_by_test_id("submit-registration").click()
     page.get_by_test_id("registration-success").wait_for(state="visible")

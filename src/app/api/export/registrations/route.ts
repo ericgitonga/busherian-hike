@@ -30,6 +30,8 @@ const COLUMNS = [
   "is_test_row",
   "mpesa_code",
   "payer_phone",
+  "terms_accepted",
+  "media_consent",
   "created_at",
 ];
 
