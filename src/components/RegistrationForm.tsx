@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { registerHiker, submitMpesaPayment } from "@/app/actions";
+import { cancelRegistration, registerHiker, submitMpesaPayment } from "@/app/actions";
 import {
   AGE_GROUP_OPTIONS,
   HIKE_ONLY_INCLUSIONS,
@@ -85,6 +85,8 @@ export default function RegistrationForm({
   const [mpesaSubmitting, setMpesaSubmitting] = useState(false);
   const [mpesaRateLimited, setMpesaRateLimited] = useState(false);
   const [mpesaGenericError, setMpesaGenericError] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelRateLimited, setCancelRateLimited] = useState(false);
 
   function update<K extends FieldName>(field: K, value: (typeof initialValues)[K]) {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -154,6 +156,34 @@ export default function RegistrationForm({
     }
 
     router.push("/confirmation");
+  }
+
+  // The already-typed values in `values` (the main form) are deliberately left in place — a
+  // hiker who cancels to tweak something (e.g. their ticket type) before trying again shouldn't
+  // have to retype the whole form, only the mpesa-proof fields, which no longer refer to
+  // anything now that the row behind them is gone. Only closes the modal on actual success —
+  // a rate-limited attempt leaves it open so the row (still real on the server) isn't
+  // silently orphaned behind a UI that already looks cancelled.
+  async function handleCancel() {
+    if (!registrationId) return;
+    setCancelling(true);
+    setCancelRateLimited(false);
+
+    const result = await cancelRegistration(registrationId);
+
+    setCancelling(false);
+
+    if (!result.success) {
+      setCancelRateLimited(true);
+      return;
+    }
+
+    setSubmitted(false);
+    setRegistrationId(null);
+    setMpesaValues(initialMpesaValues);
+    setMpesaErrors({});
+    setMpesaRateLimited(false);
+    setMpesaGenericError(false);
   }
 
   if (full) {
@@ -510,6 +540,25 @@ export default function RegistrationForm({
                 {mpesaSubmitting ? "Submitting…" : "Submit payment proof"}
               </button>
             </form>
+
+            {cancelRateLimited && (
+              <p
+                data-testid="cancel-rate-limited"
+                className="mt-3 text-xs font-normal text-red-600"
+                role="alert"
+              >
+                Too many attempts. Please wait a bit and try again.
+              </p>
+            )}
+            <button
+              data-testid="cancel-registration"
+              type="button"
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="mt-3 text-xs font-medium text-green-900 underline hover:text-green-700 disabled:opacity-50"
+            >
+              {cancelling ? "Cancelling…" : "Changed your mind? Cancel registration"}
+            </button>
           </div>
         </div>
       )}

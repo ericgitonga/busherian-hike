@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.35.0] - 2026-09-02
+
+### Added
+
+- The payment modal now has a "Changed your mind? Cancel registration" button — cancelling
+  actually deletes the registration row (guarded so it can never touch one the organiser has
+  already marked paid), instead of leaving an orphaned, unpaid registration behind forever if a
+  hiker just closed the tab. The main form's already-typed values are kept so a hiker cancelling
+  to tweak one field doesn't have to retype everything (closes #104).
+
+tag: `v0.35.0`
+
 ## [0.34.1] - 2026-09-02
 
 ### Changed
