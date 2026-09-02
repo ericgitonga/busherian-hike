@@ -77,8 +77,8 @@ export async function recordAuthFailure(
 // finding M1: "5 submissions/hour").
 export const PIN_AUTH_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 900 };
 export const REGISTRATION_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 3600 };
-// Same shape as REGISTRATION_RATE_LIMIT — a public write endpoint with no notion of
-// success/failure worth exempting (issue #70).
-export const MPESA_SUBMIT_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 3600 };
-// Same shape again — cancelling is also a public write endpoint with no auth (issue #104).
-export const CANCEL_REGISTRATION_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 3600 };
+// Same shape as REGISTRATION_RATE_LIMIT — gates completeRegistration (issue #106), the only
+// place a registration row is ever written, so this is the actual public write endpoint with no
+// notion of success/failure worth exempting (originally issue #70's mpesa-submit-only limit,
+// renamed once that step also became the registration write itself).
+export const COMPLETE_REGISTRATION_RATE_LIMIT: RateLimitConfig = { limit: 5, windowSeconds: 3600 };

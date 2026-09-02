@@ -21,6 +21,9 @@ def _read_organiser_pin() -> str:
 
 
 def _register_test_hiker(page, name: str, guest_count: str) -> None:
+    """Completes the full flow through M-Pesa proof — the registration row is only ever written
+    at that point (issue #106), so anything short of this leaves nothing in the database for the
+    organiser-side tests below to find."""
     page.goto("/")
     page.get_by_test_id("field-name").fill(name)
     page.get_by_test_id("field-ageGroup").select_option("30–39")
@@ -34,6 +37,11 @@ def _register_test_hiker(page, name: str, guest_count: str) -> None:
     page.get_by_test_id("field-isTestRow").check()
     page.get_by_test_id("submit-registration").click()
     page.get_by_test_id("registration-success").wait_for(state="visible")
+
+    page.get_by_test_id("field-payerPhone").fill("0712345678")
+    page.get_by_test_id("field-mpesaCode").fill("SFH3XXXXXX")
+    page.get_by_test_id("submit-mpesa-payment").click()
+    page.wait_for_url("**/confirmation")
 
 
 def test_wrong_pin_rejected():
@@ -112,18 +120,15 @@ def test_marking_paid_is_idempotent_and_shown_on_refresh():
         assert row.get_by_test_id("payment-row-mark-paid").count() == 0
 
 
-def test_resend_sms_button_works_once_mpesa_proof_is_submitted():
+def test_resend_sms_button_works():
     """Regression coverage for issue #96: the organiser can resend the confirmation SMS on
-    request once a hiker has submitted M-Pesa proof — the button only appears once there's a
-    payer phone to send to."""
+    request. Every registration now has M-Pesa proof by construction (issue #106 — there's no
+    longer a state where a row exists without one), so the button is always present once a row
+    exists at all."""
     pin = _read_organiser_pin()
     unique_name = f"E2E Resend {uuid.uuid4().hex[:8]}"
     with browser_page() as page:
         _register_test_hiker(page, unique_name, guest_count="0")
-        page.get_by_test_id("field-payerPhone").fill("0712345678")
-        page.get_by_test_id("field-mpesaCode").fill("SFH3XXXXXX")
-        page.get_by_test_id("submit-mpesa-payment").click()
-        page.wait_for_url("**/confirmation")
 
         page.goto("/payments")
         page.get_by_test_id("payments-pin-input").fill(pin)
@@ -140,23 +145,6 @@ def test_resend_sms_button_works_once_mpesa_proof_is_submitted():
         # A test row's resend is a no-op skip (issue #97), not a real send — the button just
         # needs to round-trip back to its clickable label rather than get stuck "Resending…".
         resend_button.get_by_text("Resend SMS").wait_for(state="visible")
-
-
-def test_resend_sms_button_absent_before_mpesa_proof_is_submitted():
-    pin = _read_organiser_pin()
-    unique_name = f"E2E NoProof {uuid.uuid4().hex[:8]}"
-    with browser_page() as page:
-        _register_test_hiker(page, unique_name, guest_count="0")
-
-        page.goto("/payments")
-        page.get_by_test_id("payments-pin-input").fill(pin)
-        page.get_by_test_id("payments-pin-submit").click()
-        page.get_by_test_id("payments-search").wait_for(state="visible")
-        page.get_by_test_id("payments-search").fill(unique_name)
-
-        row = page.get_by_test_id("payment-row").filter(has_text=unique_name)
-        row.wait_for(state="visible")
-        assert row.get_by_test_id("payment-row-resend-sms").count() == 0
 
 
 def test_delete_requires_confirmation_and_removes_the_row():
@@ -279,8 +267,7 @@ TESTS = [
     test_correct_pin_unlocks_payments,
     test_marking_paid_covers_registrant_and_guests,
     test_marking_paid_is_idempotent_and_shown_on_refresh,
-    test_resend_sms_button_works_once_mpesa_proof_is_submitted,
-    test_resend_sms_button_absent_before_mpesa_proof_is_submitted,
+    test_resend_sms_button_works,
     test_delete_requires_confirmation_and_removes_the_row,
     test_delete_cancel_leaves_the_row_in_place,
     test_deleting_a_paid_registration_frees_its_capacity,

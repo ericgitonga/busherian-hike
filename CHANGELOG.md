@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.36.0] - 2026-09-02
+
+### Changed
+
+- The registration row is now only ever written once M-Pesa payment proof is submitted, not on
+  the earlier "Register" click. "Register" now only validates the form and checks capacity
+  (no database write) before opening the payment modal; the combined write (main fields + M-Pesa
+  proof together) happens in one insert on "Submit payment proof", with `sendConfirmation` firing
+  immediately after. Abandoning the flow anywhere before that point — closing the tab, never
+  sending the money — now leaves nothing in the database at all, so there's nothing to clean up.
+  The Cancel button (issue #104) is simplified accordingly: it's now a plain client-side reset
+  with no server round-trip (closes #106).
+
+tag: `v0.36.0`
+
 ## [0.35.0] - 2026-09-02
 
 ### Added
