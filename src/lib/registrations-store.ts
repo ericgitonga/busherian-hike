@@ -232,6 +232,18 @@ export async function getAllRegistrations(): Promise<Record<string, unknown>[]> 
   return result.rows.map((row) => ({ ...row }));
 }
 
+// Irreversible, unlike every other mutation in this file — used for a mistaken/duplicate
+// registration removed at the organiser's request (issue #98). No capacity bookkeeping needed:
+// getPaidCount() sums live from `paid = 1` rows on every read, so deleting a paid row frees its
+// slot(s) the instant it's gone, the same way marking one paid consumes them.
+export async function deleteRegistration(registrationId: string): Promise<boolean> {
+  const result = await db.execute({
+    sql: "DELETE FROM registrations WHERE id = ?",
+    args: [registrationId],
+  });
+  return result.rowsAffected > 0;
+}
+
 export async function purgeContactFields(): Promise<number> {
   const result = await db.execute(
     `UPDATE registrations
