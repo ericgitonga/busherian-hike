@@ -22,6 +22,8 @@ def _register(page) -> None:
         page.get_by_test_id(test_id).fill(value)
     page.get_by_test_id("field-ageGroup").select_option("30–39")
     page.get_by_test_id("field-school").select_option("AGHS")
+    page.get_by_test_id("field-termsAccepted").check()
+    page.get_by_test_id("media-consent-yes").check()
     page.get_by_test_id("field-isTestRow").check()
     page.get_by_test_id("submit-registration").click()
     page.get_by_test_id("registration-success").wait_for(state="visible")

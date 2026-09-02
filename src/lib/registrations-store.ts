@@ -11,8 +11,8 @@ export async function insertRegistration(
     sql: `INSERT INTO registrations (
       id, name, age_group, school, year_left, guest_count,
       next_of_kin_name, next_of_kin_contact, needs_bus,
-      ticket_type, email, is_test_row
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ticket_type, email, is_test_row, terms_accepted, media_consent
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       id,
       input.name,
@@ -26,6 +26,8 @@ export async function insertRegistration(
       input.ticketType,
       input.email || null,
       input.isTestRow ? 1 : 0,
+      input.termsAccepted ? 1 : 0,
+      input.mediaConsent,
     ],
   });
   return id;
