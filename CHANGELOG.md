@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.32.1] - 2026-09-02
+
+### Fixed
+
+- A test registration (the "this is a test registration" checkbox) no longer triggers a real
+  SMS/email confirmation send — was silently spending real SasaSignal float during e2e testing
+  and manual Preview quality checks, since both use the same `SASASIGNAL_API_TOKEN` as
+  production (closes #97).
+
+tag: `v0.32.1`
+
 ## [0.32.0] - 2026-09-02
 
 ### Added

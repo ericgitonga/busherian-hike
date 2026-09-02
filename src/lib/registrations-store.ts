@@ -79,7 +79,7 @@ export async function markCheckedIn(registrationId: string): Promise<boolean> {
 }
 
 export type RecordMpesaPaymentResult =
-  | { status: "recorded"; name: string; email: string | null }
+  | { status: "recorded"; name: string; email: string | null; isTestRow: boolean }
   | { status: "already_submitted" }
   | { status: "not_found" };
 
@@ -101,13 +101,14 @@ export async function recordMpesaPayment(
 
   if (updateResult.rowsAffected > 0) {
     const row = await db.execute({
-      sql: "SELECT name, email FROM registrations WHERE id = ?",
+      sql: "SELECT name, email, is_test_row FROM registrations WHERE id = ?",
       args: [registrationId],
     });
     return {
       status: "recorded",
       name: String(row.rows[0].name),
       email: row.rows[0].email ? String(row.rows[0].email) : null,
+      isTestRow: Number(row.rows[0].is_test_row) === 1,
     };
   }
 
