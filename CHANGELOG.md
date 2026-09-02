@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.33.0] - 2026-09-02
+
+### Added
+
+- A registration's confirmation SMS delivery outcome (`sms_status`: `sent`/`failed`/`skipped`)
+  is now tracked, instead of just logged and discarded. A daily Vercel Cron
+  (`/api/cron/retry-failed-sms`) retries any row whose last attempt failed — covers a SasaSignal
+  float top-up automatically. `/payments` also gained a **Resend SMS** button per row (once
+  M-Pesa proof has been submitted) so the organiser can resend on a registrant's request at any
+  time, not just after a detected failure (closes #96).
+
+tag: `v0.33.0`
+
 ## [0.32.1] - 2026-09-02
 
 ### Fixed

@@ -11,6 +11,7 @@ export default function PaymentsPage() {
   const [registrations, setRegistrations] = useState<PaymentListRow[]>([]);
   const [search, setSearch] = useState("");
   const [markingId, setMarkingId] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportPin, setExportPin] = useState("");
   const [exportError, setExportError] = useState<string | null>(null);
@@ -119,6 +120,26 @@ export default function PaymentsPage() {
       }
     } finally {
       setMarkingId(null);
+    }
+  }
+
+  async function resendSms(registrationId: string) {
+    setResendingId(registrationId);
+    try {
+      const res = await fetch("/api/payments/resend-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ registrationId }),
+      });
+      const data = res.ok ? await res.json() : null;
+      const smsStatus = data?.status === "sent" || data?.status === "failed" ? data.status : null;
+      if (smsStatus) {
+        setRegistrations((prev) =>
+          prev.map((r) => (r.id === registrationId ? { ...r, smsStatus } : r)),
+        );
+      }
+    } finally {
+      setResendingId(null);
     }
   }
 
@@ -257,25 +278,42 @@ export default function PaymentsPage() {
                   {row.school} · {row.ticketType === "hike_and_socials" ? "Hike + Socials" : "Socials only"}
                   {row.mpesaCode &&
                     ` · proof submitted: ${row.mpesaCode} from ${row.payerPhone}`}
+                  {row.smsStatus === "failed" && (
+                    <span data-testid="payment-row-sms-failed" className="ml-1 text-red-600">
+                      · confirmation SMS failed
+                    </span>
+                  )}
                 </p>
               </div>
-              {row.paid ? (
-                <span
-                  data-testid="payment-row-paid-badge"
-                  className="shrink-0 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800"
-                >
-                  Paid
-                </span>
-              ) : (
-                <button
-                  data-testid="payment-row-mark-paid"
-                  onClick={() => markPaid(row.id)}
-                  disabled={markingId === row.id}
-                  className="shrink-0 rounded-full bg-foreground px-3 py-1 text-xs font-medium text-background disabled:opacity-50"
-                >
-                  {markingId === row.id ? "Marking…" : "Mark paid"}
-                </button>
-              )}
+              <div className="flex shrink-0 items-center gap-2">
+                {row.payerPhone && (
+                  <button
+                    data-testid="payment-row-resend-sms"
+                    onClick={() => resendSms(row.id)}
+                    disabled={resendingId === row.id}
+                    className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+                  >
+                    {resendingId === row.id ? "Resending…" : "Resend SMS"}
+                  </button>
+                )}
+                {row.paid ? (
+                  <span
+                    data-testid="payment-row-paid-badge"
+                    className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800"
+                  >
+                    Paid
+                  </span>
+                ) : (
+                  <button
+                    data-testid="payment-row-mark-paid"
+                    onClick={() => markPaid(row.id)}
+                    disabled={markingId === row.id}
+                    className="rounded-full bg-foreground px-3 py-1 text-xs font-medium text-background disabled:opacity-50"
+                  >
+                    {markingId === row.id ? "Marking…" : "Mark paid"}
+                  </button>
+                )}
+              </div>
             </li>
           ))}
         </ul>

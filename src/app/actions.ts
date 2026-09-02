@@ -10,6 +10,7 @@ import {
   getSlotsRemaining,
   insertRegistration,
   recordMpesaPayment,
+  updateSmsStatus,
 } from "@/lib/registrations-store";
 import { sendConfirmation } from "@/lib/confirmation";
 import {
@@ -80,13 +81,20 @@ export async function submitMpesaPayment(
   }
 
   if (recorded.status === "recorded") {
-    await sendConfirmation({
+    const confirmationResult = await sendConfirmation({
       registrationId,
       name: recorded.name,
       phone: payerPhone,
       email: recorded.email ?? undefined,
       isTestRow: recorded.isTestRow,
     });
+    // 'failed' here is what api/cron/retry-failed-sms and /payments's Resend button both act
+    // on (issue #96) — a real send attempt that came back false, as opposed to a test row's
+    // deliberate 'skipped' (never attempted at all, see confirmation.ts).
+    await updateSmsStatus(
+      registrationId,
+      recorded.isTestRow ? "skipped" : confirmationResult.smsSent ? "sent" : "failed",
+    );
   }
 
   return { success: true };
