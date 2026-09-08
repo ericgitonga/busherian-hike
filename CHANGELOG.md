@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.35.1] - 2026-09-08
+
+### Fixed
+
+- Excluded the unused `@libsql/linux-x64-musl` native binary from serverless function output
+  tracing. `@libsql/client` ships both a glibc and a musl build; Vercel's runtime is glibc, so
+  the ~9.5MB musl binary was being bundled into every one of the ~65 database-touching
+  functions for no reason, roughly doubling their size. This was identified as the largest
+  single contributor to the egm2 Vercel team's Function Storage usage (closes #109).
+
+tag: `v0.35.1`
+
 ## [0.35.0] - 2026-09-02
 
 ### Added
