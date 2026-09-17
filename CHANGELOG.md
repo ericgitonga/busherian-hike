@@ -6,7 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
-## [0.35.1] - 2026-09-08
+## [0.36.1] - 2026-09-17
+
+### Changed
+
+- Changed wording from "Number of guets" to "Number of guests accompanying you" to remove amgibuity on what answer was needed in that section. (closes #113).
+
+tag: `v0.36.1`
+
+## [0.36.0] - 2026-09-17
 
 ### Added
 
