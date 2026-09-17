@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.36.2] - 2026-09-17
+
+### Changed
+
+- Changed link to sponsor Eric Gitonga. (closes #115).
+
+tag: `v0.36.2`
+
 ## [0.36.1] - 2026-09-17
 
 ### Changed
