@@ -8,6 +8,14 @@ behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
 ## [0.35.1] - 2026-09-08
 
+### Added
+
+- Registrants from non-Alliance schools needed an "Other" option at registration (closes #111).
+
+tag: `v0.36.0`
+
+## [0.35.1] - 2026-09-08
+
 ### Fixed
 
 - Excluded the unused `@libsql/linux-x64-musl` native binary from serverless function output
