@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const SCHOOL_OPTIONS = ["AHS", "AGHS"] as const;
+export const SCHOOL_OPTIONS = ["AHS", "AGHS", "Other"] as const;
 
 export const TICKET_TYPE_VALUES = ["hike_and_socials", "socials_only"] as const;
 
