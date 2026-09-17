@@ -277,7 +277,7 @@ export default function RegistrationForm({
             />
           </Field>
 
-          <Field label="Number of guests" error={errors.guestCount}>
+          <Field label="Number of guests accompanying you" error={errors.guestCount}>
             <input
               data-testid="field-guestCount"
               className={inputClass}
