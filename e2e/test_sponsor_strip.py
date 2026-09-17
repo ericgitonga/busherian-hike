@@ -19,7 +19,7 @@ def test_sponsor_strip_shows_eric_gitonga_logo_and_link():
         logo = strip.get_by_alt_text("Eric Gitonga")
         logo.wait_for(state="visible")
         link = strip.get_by_role("link", name="Eric Gitonga")
-        assert link.get_attribute("href") == "https://eric-gitonga-links.vercel.app/"
+        assert link.get_attribute("href") == "https://www.ericgitonga.com/"
 
 
 def test_sponsor_strip_shows_vecarian_plant_logo_and_link():
