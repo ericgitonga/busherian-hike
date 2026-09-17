@@ -46,7 +46,7 @@ export const SPONSORS: Sponsor[] = [
   {
     name: "Eric Gitonga",
     logoSrc: "/eric-gitonga-logo.png",
-    linkHref: "https://eric-gitonga-links.vercel.app/",
+    linkHref: "https://www.ericgitonga.com/",
     logoHeightClass: "h-9",
   },
   {
